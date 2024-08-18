@@ -43,24 +43,24 @@
 	<title>Signal aarch64 Flatpak</title>
 	<body>
 		<br/>
-		<h2 style="text-align:center" >Signal Desktop Flatpak for aarch64/arm64 <a href="https://github.com/adamthiede/signal-desktop-builder">(source)</a></h2>
+		<h2 style="text-align:center" >Signal Desktop Flatpak for aarch64/arm64 <a href="https://github.com/signalflatpak/signal">(source)</a></h2>
 		<h4 style="text-align:center" >Updates are untested and shipped automatically by CI. Use repo at your own risk.</h4>
         <p></p>
 		<h3>To install system wide:</h3>
         <div class=mono>
-		<p>sudo flatpak remote-add --if-not-exists signal-arm https://adamthiede.github.io/signal-desktop-builder/signal.flatpakrepo</p>
+		<p>sudo flatpak remote-add --if-not-exists signal-arm https://signalflatpak.github.io/signal/signal.flatpakrepo</p>
 		<p>sudo flatpak install signal-arm org.signal.Signal</p>
         </div>
 		<h3>To install for your user:</h3>
         <div class=mono>
-		<p>flatpak remote-add --user --if-not-exists signal-arm https://adamthiede.github.io/signal-desktop-builder/signal.flatpakrepo</p>
+		<p>flatpak remote-add --user --if-not-exists signal-arm https://signalflatpak.github.io/signal/signal.flatpakrepo</p>
 		<p>flatpak install --user signal-arm org.signal.Signal</p>
         </div>
 		<p><b>You will need <a href="https://flatpak.org/setup/Debian">Flathub repo</a> for the runtimes.</b></p>
         <p><a href="signal.flatpakrepo">This repo</a> is signed by <a href="gitlab-runner-leb.gpg" title="No, it's not built at gitlab anymore, but I did not want to change the key yet again.">gitlab-runner@leb gpg key</a>, FBEF43DC8C6BE9A7</p>
 		<hr/>
 		<h3 id="binaries">Standalone Binaries:</h3>
-		<p>Get them from <a href="https://github.com/adamthiede/signal-desktop-builder/releases">the latest release</a></p>
+		<p>Get them from <a href="https://github.com/signalflatpak/signal/releases">the latest release</a></p>
 		<p><span class=mono>apt install ./signal-desktop.deb</span> or <span class=mono>flatpak install ./signal.flatpak</span></p>
 		<h3 id=tips>Tips &amp; Tricks</h3>
 
