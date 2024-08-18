@@ -1,0 +1,110 @@
+<html>
+<style>
+       html {
+            font-family:sans-serif;
+        }
+        body {
+            max-width: 768px;
+            padding-left:2.5%;
+            padding-right:2.5%;
+            margin:auto
+        }
+        .mono {
+            font-family: "Source Code Pro", "Hack", monospace;
+            font-weight: normal;
+        }
+        @media (prefers-color-scheme: dark) {
+             html{
+                     max-width=500px;
+                     background: #1E1F21;
+                     color: #EEEFF1;
+                     font-family: sans-serif;
+             }
+             a {
+                     color: #BAD7FF;
+                     text-decoration:none;
+                     border-bottom:thin dotted;
+             }
+         }
+         
+         @media (prefers-color-scheme: light) {
+             html{
+                     max-width=500px;
+                     font-family: sans-serif;
+                     background: #EEEFF1;
+             }
+             a {
+                     text-decoration:none;
+                     border-bottom:thin dotted;
+             }
+         }
+        
+</style>
+	<title>Signal aarch64 Flatpak</title>
+	<body>
+		<br/>
+		<h2 style="text-align:center" >Signal Desktop Flatpak for aarch64/arm64 <a href="https://github.com/adamthiede/signal-desktop-builder">(source)</a></h2>
+		<h4 style="text-align:center" >Updates are untested and shipped automatically by CI. Use repo at your own risk.</h4>
+        <p></p>
+		<h3>To install system wide:</h3>
+        <div class=mono>
+		<p>sudo flatpak remote-add --if-not-exists signal-arm https://adamthiede.github.io/signal-desktop-builder/signal.flatpakrepo</p>
+		<p>sudo flatpak install signal-arm org.signal.Signal</p>
+        </div>
+		<h3>To install for your user:</h3>
+        <div class=mono>
+		<p>flatpak remote-add --user --if-not-exists signal-arm https://adamthiede.github.io/signal-desktop-builder/signal.flatpakrepo</p>
+		<p>flatpak install --user signal-arm org.signal.Signal</p>
+        </div>
+		<p><b>You will need <a href="https://flatpak.org/setup/Debian">Flathub repo</a> for the runtimes.</b></p>
+        <p><a href="signal.flatpakrepo">This repo</a> is signed by <a href="gitlab-runner-leb.gpg" title="No, it's not built at gitlab anymore, but I did not want to change the key yet again.">gitlab-runner@leb gpg key</a>, FBEF43DC8C6BE9A7</p>
+		<hr/>
+		<h3 id="binaries">Standalone Binaries:</h3>
+		<p>Get them from <a href="https://github.com/adamthiede/signal-desktop-builder/releases">the latest release</a>, or here: <a href="signal-desktop.deb">.deb</a> or <a href="signal.flatpak">.flatpak</a></p>
+		<p><span class=mono>apt install ./signal-desktop.deb</span> or <span class=mono>flatpak install ./signal.flatpak</span></p>
+		<h3 id=tips>Tips &amp; Tricks</h3>
+
+		<ul>
+        <li>Signal will be blurry on phosh (pinephone, Librem 5) becacuse of Xwayland scaling. To fix, run with wayland using these arguments: <span class=mono>--use-gl=egl --enable-features=UseOzonePlatform  --ozone-platform=wayland</span>. Signal must be opened at least once in X11/Xwayland first (just by clicking the launcher) first.</li>
+        <li>To add the above to the launcher shortcut:
+		<ul>
+			<li>
+		<span class=mono>mkdir -p ~/.local/share/applications ; cp /var/lib/flatpak/app/org.signal.Signal/current/active/files/share/applications/org.signal.Signal.desktop ~/.local/share/applications/</span>
+			</li>
+			<li>
+		<span class=mono>desktop-file-edit --set-key=Exec --set-value="flatpak run org.signal.Signal --use-gl=egl --enable-features=UseOzonePlatform --ozone-platform=wayland" ~/.local/share/applications/org.signal.Signal.desktop</span>
+			</li>
+		</ul>
+	</li>
+		<li>Use the View menu item to zoom out a few times. It makes Signal much less cramped.</li>
+		<li>Ctrl+Shift+c will close the current conversation and reduce idle CPU usage significantly.</li>
+		<li>Notification sounds and mic/camera usage can be enabled in settings.</li>
+		</ul>
+
+		<p>Contact me if you want to take over maintaining this! Or for bug reports etc.
+		<ul>
+        <li>open an issue on the <a href="https://github.com/adamthiede/signal-desktop-builder">repo</a></li>
+        <li>open an issue on the <a href="https://gitlab.com/undef1/signal-desktop-builder">upstream repo</a></li>
+        <li>email mail@ this domain</li>
+	<li>mention or pm 'elagost' on libera or oftc</li>
+	<li><a rel="me" href="https://infosec.exchange/@adamth">Mastodon</a></li>
+		</ul>
+        </p>
+		<hr/>
+
+		<h3>Other Signal arm64 builds:</h3>
+		<p>
+		<ul>
+			<li>The signal-desktop <a href="https://pkgs.alpinelinux.org/packages?name=signal-desktop&branch=edge&repo=&arch=aarch64&maintainer=">Alpine Linux package</a> now builds on aarch64.</li>
+			<li><a href="https://gitlab.com/schmiddi-on-mobile/flare">Flare</a>, a really good unofficial gtk signal client.</li>
+			<li>There are standalone flatpak and deb bundles attached to each <a href="https://github.com/adamthiede/signal-desktop-builder/releases">release</a> now.</li>
+        <li><a href="https://git.sr.ht/~bakerk98/my_aarch64_pinephone_pmos_builds/tree/master/item/signal-desktop/APKBUILD">Alpine APKBUILD</a> (maybe someone could combine efforts with <a href="https://gitlab.alpinelinux.org/alpine/aports/-/tree/master/testing/signal-desktop">the APKBUILD in Alpine's repos?</a>)</li>
+        <li><a href="https://aur.archlinux.org/packages/signal-desktop-arm">AUR for Arch</a></li>
+        <li><a href="https://copr.fedorainfracloud.org/coprs/useidel/signal-desktop/">COPR for Fedora</a></li>
+		</ul>
+		</p>
+
+        <hr/>
+	<p>Maintained by <a href="https://adamthiede.com">Adam Thiede</a>. This costs money to host; if you find this useful would like to contribute money, donate to <a href="https://signal.org/donate/">Signal Foundation</a>, <a href="https://www.fsf.org/donate/">FSF</a>, or <a href="https://opencollective.com/postmarketOS">postmarketOS</a>.</p>
+	</body>
+</html>
