@@ -132,7 +132,7 @@ jobs:
         run: |
           # checking if debs are downloaded
           ls -alh debs/
-          mv debs/* .
+          mv debs/*/*.deb .
           sha256sum signal-desktop*deb | tee -a checksums.txt
           sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
       - name: install flatpak deps
