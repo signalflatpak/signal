@@ -165,13 +165,15 @@ jobs:
         with:
           ref: gh-pages
       - name: sync to gh-pages branch repo dir and commit
+        env:
+          VERSION: "7.20.0"
         shell: bash
         run: |
           rsync -a --delete /opt/pakrepo/ ./repo/
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
           git add repo
-          git commit -m "repo update arm64"
+          git commit -m "repo update for $VERSION"
           git push
       - name: Upload release artifacts
         env:
@@ -179,6 +181,6 @@ jobs:
         uses: AButler/upload-release-assets@v3.0
         with:
           release-tag: ${{ env.VERSION }}
-          files: "signal-desktop_arm64.deb;signal-desktop_amd64.deb;signal-desktop_arm64.deb;signal-desktop_amd64.deb;checksums.txt"
+          files: "signal-desktop_arm64.deb;signal-desktop_amd64.deb;signal_amd64.flatpak;signal_arm64.flatpak;checksums.txt"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
