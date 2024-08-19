@@ -66,6 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: signal-desktop_amd64.deb
+          name: signal-desktop_amd64.deb
 
 
   b-build-signal-amd64:
@@ -99,6 +100,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: signal-desktop_amd64.deb
+          name: signal-desktop_amd64.deb
  
 
   c-build-flatpaks:
