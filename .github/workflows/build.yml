@@ -160,6 +160,14 @@ jobs:
           flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
           flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
           sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
+      - name: Upload release artifacts
+        env:
+          VERSION: "7.20.1"
+        uses: AButler/upload-release-assets@v3.0
+        with:
+          release-tag: ${{ env.VERSION }}
+          files: "signal-desktop_arm64.deb;signal-desktop_amd64.deb;signal_amd64.flatpak;signal_arm64.flatpak;checksums.txt"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: checkout gh-pages branch
         uses: actions/checkout@v4
         with:
@@ -175,12 +183,4 @@ jobs:
           git add repo
           git commit -m "repo update for $VERSION"
           git push
-      - name: Upload release artifacts
-        env:
-          VERSION: "7.20.1"
-        uses: AButler/upload-release-assets@v3.0
-        with:
-          release-tag: ${{ env.VERSION }}
-          files: "signal-desktop_arm64.deb;signal-desktop_amd64.deb;signal_amd64.flatpak;signal_arm64.flatpak;checksums.txt"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
