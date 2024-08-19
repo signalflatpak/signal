@@ -62,6 +62,74 @@ jobs:
           podman stop signal-desktop-$VERSION
           cp ~/signal-desktop.deb signal-desktop_arm64.deb
           sha256sum signal-desktop_arm64.deb | tee checksums_arm64.txt
+      - name: Upload signal-desktop_arm64.deb
+        uses: actions/upload-artifact@v4
+        with:
+          path: signal-desktop_amd64.deb
+
+
+  b-build-signal-amd64:
+    needs:
+      - a-publish-release
+    #runs-on: self-hosted
+    runs-on: ubuntu-latest
+    name: '2 build signal amd64'
+    steps:
+      - name: Set env.BRANCH
+        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: install deps
+        shell: bash
+        run: |
+          sudo apt update && sudo apt install -qq -y bash rsync podman flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
+      - name: build deb
+        shell: bash
+        env:
+          VERSION: "7.20.0"
+        run: |
+          set -x
+          echo "Version is: $VERSION"
+          bash arch-specific.sh amd64
+          bash ci-build.sh
+          podman stop signal-desktop-$VERSION
+          cp ~/signal-desktop.deb signal-desktop_amd64.deb
+          sha256sum signal-desktop_amd64.deb | tee checksums_amd64.txt
+      - name: Upload signal-desktop_amd64.deb
+        uses: actions/upload-artifact@v4
+        with:
+          path: signal-desktop_amd64.deb
+ 
+
+  c-build-flatpaks:
+    needs:
+      - b-build-signal-arm64
+      - b-build-signal-amd64
+    #runs-on: self-hosted
+    runs-on: ubuntu-latest
+    name: 'build flatpaks'
+    steps:
+      - name: Set env.BRANCH
+        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
+      - name: install secrets
+        shell: bash
+        env:
+          GPG_KEY: ${{secrets.GPG_KEY}}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qq -y gpg openssh-client
+          echo "$GPG_KEY" | gpg --import
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: download release artifacts
+        uses: actions/download-artifact@v4
+      - name: install deps
+        shell: bash
+        run: |
+          # checking if debs are downloaded
+          ls -alh *deb
+          sha256sum signal-desktop*deb | tee -a checksums.txt
+          sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
       - name: install flatpak deps
         shell: bash
         env:
@@ -73,15 +141,20 @@ jobs:
           sudo flatpak update --noninteractive -y
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//23.08 org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08 -y
-      - name: build flatpak
+          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//23.08 org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08 -y
+      - name: build flatpaks
         shell: bash
         run: |
+          # arm64
           bash arch-specific.sh arm64
           flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-          flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal.flatpak org.signal.Signal master
-          cp ./signal.flatpak ./signal_arm64.flatpak
-          cp ./signal_arm64.flatpak ~/
-          sha256sum ~/signal_arm64.flatpak | tee -a checksums_arm64.txt
+          flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
+          sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
+          # amd64
+          bash arch-specific.sh amd64
+          flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+          flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
+          sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
       - name: checkout gh-pages branch
         uses: actions/checkout@v4
         with:
@@ -101,80 +174,6 @@ jobs:
         uses: AButler/upload-release-assets@v3.0
         with:
           release-tag: ${{ env.VERSION }}
-          files: "signal-desktop_arml64.deb;signal_arm64.flatpak;checksums_arm64.txt"
+          files: "signal-desktop_arm64.deb;signal-desktop_amd64.deb;signal-desktop_arm64.deb;signal-desktop_amd64.deb;checksums.txt"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-  b-build-signal-amd64:
-    needs:
-      - a-publish-release
-    #runs-on: self-hosted
-    runs-on: ubuntu-latest
-    name: '2 build signal amd64'
-    steps:
-      - name: Set env.BRANCH
-        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
-      - name: install secrets
-        shell: bash
-        env:
-          GPG_KEY: ${{secrets.GPG_KEY}}
-        run: |
-          sudo apt update
-          sudo apt install -qq -y gpg openssh-client
-          echo "$GPG_KEY" | gpg --import
-      - name: checkout code
-        uses: actions/checkout@v4
-      - name: install deps
-        shell: bash
-        run: |
-          sudo apt update && sudo apt install -qq -y bash rsync podman flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
-      - name: build deb
-        shell: bash
-        env:
-          VERSION: "7.20.0"
-        run: |
-          set -x
-          echo "Version is: $VERSION"
-          bash arch-specific.sh amd64
-          bash ci-build.sh
-          podman stop signal-desktop-$VERSION
-          cp ~/signal-desktop.deb signal-desktop_amd64.deb
-          sha256sum signal-desktop_amd64.deb | tee checksums_amd64.txt
-      - name: install flatpak deps
-        shell: bash
-        env:
-          CI_USER: runner
-        run: |
-          sudo rm -rf /opt/pakrepo/
-          sudo mkdir -p /opt/pakrepo
-          sudo chown "$USER" /opt/pakrepo
-          sudo flatpak update --noninteractive -y
-          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//23.08 org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08 -y
-      - name: build flatpak
-        shell: bash
-        run: |
-          bash arch-specific.sh amd64
-          flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-          flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal.flatpak org.signal.Signal master
-          cp ./signal.flatpak ./signal_amd64.flatpak
-          cp ./signal_amd64.flatpak ~/
-          sha256sum ~/signal_amd64.flatpak | tee -a checksums_amd64.txt
-      - name: checkout gh-pages branch
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-      - name: sync to gh-pages branch repo dir and commit
-        shell: bash
-        run: |
-          rsync -a --delete /opt/pakrepo/ ./repo/
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git config --global user.name "${{ github.actor }}"
-          git add repo
-          git commit -m "repo update amd64"
-          git push
-      - name: Upload release artifacts
-        env:
-          VERSION: "7.20.0"
-        uses: AButler/upload-release-assets@v3.0
-        with:
-          release-tag: ${{ env.VERSION }}
-          files: "signal-desktop_amd64.deb;signal_amd64.flatpak;checksums_amd64.txt"
