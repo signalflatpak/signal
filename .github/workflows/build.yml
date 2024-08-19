@@ -65,8 +65,8 @@ jobs:
       - name: Upload signal-desktop_arm64.deb
         uses: actions/upload-artifact@v4
         with:
-          path: signal-desktop_amd64.deb
-          name: signal-desktop_amd64.deb
+          path: signal-desktop_arm64.deb
+          name: signal-desktop_arm64.deb
 
 
   b-build-signal-amd64:
@@ -125,11 +125,14 @@ jobs:
         uses: actions/checkout@v4
       - name: download release artifacts
         uses: actions/download-artifact@v4
+        with:
+          path: debs
       - name: install deps
         shell: bash
         run: |
           # checking if debs are downloaded
-          ls -alh *deb
+          ls -alh debs/
+          mv debs/* .
           sha256sum signal-desktop*deb | tee -a checksums.txt
           sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
       - name: install flatpak deps
