@@ -31,10 +31,10 @@ tasks:
       sudo mkdir -p /opt/pakrepo
       sudo chown build /opt/pakrepo
       sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-      sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//22.08 org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 -y
+      sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//22.08 org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 -y
   - build-flatpak: |
       cd signal-desktop-builder
-      flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+      flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
   - deploy: |
       rsync -azu --delete /opt/pakrepo/ server:/var/www/htdocs/elagost.com/flatpak/repo/
 triggers:

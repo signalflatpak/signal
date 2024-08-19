@@ -10,10 +10,10 @@ exit_msg() {
 NODE_VERSION="v16.5.0"
 
 # DEPS
-sudo apt install -y vim python gcc python2 g++ make build-essential git git-lfs libffi-dev libssl-dev libglib2.0-0 libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libgdk-pixbuf-2.0-0 libgtk-3-0 libdrm2 libgbm1 curl wget clang llvm lld clang-tools generate-ninja ninja-build pkg-config tcl libglib2.0-dev meson gcc-aarch64-linux-gnu crossbuild-essential-arm64
-sudo mkdir -p /usr/include/aarch64-linux-gnu/
-# pulled from https://raw.githubusercontent.com/node-ffi-napi/node-ffi-napi/master/deps/libffi/config/linux/arm64/fficonfig.h because its not in debian
-sudo cp ../fficonfig.h /usr/include/aarch64-linux-gnu/ 
+sudo apt install -y vim python gcc python2 g++ make build-essential git git-lfs libffi-dev libssl-dev libglib2.0-0 libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libgdk-pixbuf-2.0-0 libgtk-3-0 libdrm2 libgbm1 curl wget clang llvm lld clang-tools generate-ninja ninja-build pkg-config tcl libglib2.0-dev meson gcc-linux-gnu crossbuild-essential-ARCHSPECIFICVARIABLECOMMON
+sudo mkdir -p /usr/include/ARCHSPECIFICVARIABLELONG-linux-gnu/
+# pulled from https://raw.githubusercontent.com/node-ffi-napi/node-ffi-napi/master/deps/libffi/config/linux/x64/fficonfig.h because its not in debian
+sudo cp ../fficonfig.h /usr/include/ARCHSPECIFICVARIABLELONG-linux-gnu/
 chmod +x rustup-init
 ./rustup-init -y
 

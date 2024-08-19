@@ -1,5 +1,5 @@
 # Signal Desktop Builder
-This project allows building Signal Desktop for Debian 12 on ARM64.
+This project allows building Signal Desktop for Debian 12 on ARM64 and AMD64.
 It is currently a work in progress, with the goal of building a flatpak
 which provides Signal Desktop.
 
@@ -22,7 +22,7 @@ The process works through CI fairly well. I've included all the files in this re
 - `.github/workflows/build.yml` is for [github](https://github.com) actions. You will need the secrets I specified by name in the build manifest.
 - `.gitlab-ci.yml` is obviously for [gitlab](https://gitlab.com) ci but is kind of incomplete, since I ran it on a self-hosted runner. This one you'll need to figure out yourself.
 
-The builds take hours when cross-compiling and frequently time out in github's shared runners, but they take less time on a relatively powerful ARM server. [Oracle Cloud Free Tier](https://www.oracle.com/cloud/free/) will give you ARM servers for free. Yes, I know, it's Oracle, but this is genuinely the best way to build these. You can set one up as a self-hosted github/gitlab runner and it'll build the flatpak in 25 minutes.
+The builds take hours when cross-compiling and frequently time out in github's shared runners, but they take less time on a relatively powerful AMD or ARM server. [Oracle Cloud Free Tier](https://www.oracle.com/cloud/free/) will give you AMD or ARM servers for free. Yes, I know, it's Oracle, but this is genuinely the best way to build these. You can set one up as a self-hosted github/gitlab runner and it'll build the flatpak in 25 minutes.
 
 To build by hand, you will need an Ubuntu or Debian server.
 
@@ -33,12 +33,18 @@ This needs to be done every time on CI, but only once on a self-hosted system. Y
 ```
 sudo apt install -qq bash rsync podman flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+```
+```
 sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//22.08 org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 -y
+```
+or
+```
+sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//22.08 org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 -y
 ```
 
 ### Running Build Scripts
 
-Fairly simple. `ci-build.sh` invokes `signal-buildscript.sh`, builds signal in an ARM docker container and copies the .deb out. It looks like there's some duplication of work between them; for historical reasons this was necessary because one of them would fail due to non-interactivity. I think if you run it by hand in tmux or something, you can comment out most of `ci-build.sh`.
+Fairly simple. `ci-build.sh` invokes `signal-buildscript.sh`, builds signal in an AMD or ARM docker container and copies the .deb out. It looks like there's some duplication of work between them; for historical reasons this was necessary because one of them would fail due to non-interactivity. I think if you run it by hand in tmux or something, you can comment out most of `ci-build.sh`.
 
 First, though, run `./update-node.sh 6.12.x` where `6.12.x` is the name of the branch you are building. If you get a new nodejs version, update the Dockerfile's `ENV NODE_VERSION` line.
 
@@ -62,7 +68,7 @@ The flatpakrepo file looks like this:
 
 ```
 [Flatpak Repo]
-Title=Signal-Arm Flatpak Repo
+Title=Signal Flatpak Repo
 Url=https://example.com/flatpak/signal-arm-repo/
 GPGKey=<Key Data>
 ```
@@ -89,12 +95,18 @@ Build the flatpak:
 ```
 flatpak-builder --arch=aarch64 --gpg-sign=<Key ID> --repo=./repodir --force-clean ./builddir flatpak.yml
 ```
+or
+```
+flatpak-builder --arch=x86_64 --gpg-sign=<Key ID> --repo=./repodir --force-clean ./builddir flatpak.yml
+```
 
 Now you have your `.flatpakrepo` file and your `./repodir`. You can put those on a web server and tell people about them, or use them yourself.
 
 If you just want to build a standalone .flatpak bundle that you can install anywhere, instead of building a repo:
 
 `flatpak build-bundle --arch=aarch64 ./repodir ./signal.flatpak org.signal.Signal master`
+or
+`flatpak build-bundle --arch=x86_64 ./repodir ./signal.flatpak org.signal.Signal master`
 
 ## Github Actions notes:
 
@@ -113,6 +125,7 @@ I also have create an `autobuild.sh` script to do all of this for you!
 ## See also:
 
 https://github.com/lsfxz/ringrtc/tree/aarch64
+https://github.com/lsfxz/ringrtc/tree/x86_64
 https://gitlab.com/undef1/Snippets/-/snippets/2100495
 https://gitlab.com/ohfp/pinebookpro-things/-/tree/master/signal-desktop
 Flatpak based on [Flathub Sigal Desktop builds](https://github.com/flathub/org.signal.Signal/)

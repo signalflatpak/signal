@@ -12,12 +12,12 @@ podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn i
 podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION rm -rf ts/test-mock
 podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn generate
 podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn build:webpack
-podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn build:release --arm64 --linux --dir
-podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn build:release --arm64 --linux deb
+podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn build:release --ARCHSPECIFICVARIABLESHORT --linux --dir
+podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn build:release --ARCHSPECIFICVARIABLESHORT --linux deb
 
-podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSION mv linux-arm64-unpacked signal
+podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSION mv linux-unpacked signal
 podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSION tar cJvf signal-desktop_${VERSION}.tar.xz signal
 
-podman cp signal-desktop-${VERSION}:/Signal-Desktop/release/signal-desktop_${VERSION}_arm64.deb ~/signal-desktop.deb
+podman cp signal-desktop-${VERSION}:/Signal-Desktop/release/signal-desktop_${VERSION}_ARCHSPECIFICVARIABLECOMMON.deb ~/signal-desktop.deb
 podman cp signal-desktop-${VERSION}:/Signal-Desktop/release/signal-desktop_${VERSION}.tar.xz ~/signal-desktop_${VERSION}.tar.xz
 

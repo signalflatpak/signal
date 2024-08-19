@@ -3,9 +3,9 @@ RUN apt update
 
 # DEPS
 RUN apt install -y vim python gcc python2 g++ make build-essential git git-lfs libffi-dev libssl-dev libglib2.0-0 libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libgdk-pixbuf-2.0-0 libgtk-3-0 libdrm2 libgbm1 curl wget clang llvm lld clang-tools generate-ninja ninja-build pkg-config tcl libglib2.0-dev meson
-RUN mkdir -p /usr/include/aarch64-linux-gnu/
-# pulled from https://raw.githubusercontent.com/node-ffi-napi/node-ffi-napi/master/deps/libffi/config/linux/arm64/fficonfig.h because its not in debian
-COPY fficonfig.h /usr/include/aarch64-linux-gnu/ 
+RUN mkdir -p /usr/include/ARCHSPECIFICVARIABLELONG-linux-gnu/
+# pulled from https://raw.githubusercontent.com/node-ffi-napi/node-ffi-napi/master/deps/libffi/config/linux/x64/fficonfig.h because its not in debian
+COPY fficonfig.h /usr/include/ARCHSPECIFICVARIABLELONG-linux-gnu/
 COPY rustup-init /rustup-init
 RUN chmod +x /rustup-init
 RUN /rustup-init -y

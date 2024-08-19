@@ -12,7 +12,7 @@ before_script:
   - shopt -s localvar_inherit
   - doas apt install -qq -y bash rsync podman flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
   - doas flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-  - doas flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//22.08 org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 -y
+  - doas flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//22.08 org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 -y
   - doas flatpak update -y
 
 after_script:
@@ -31,7 +31,7 @@ build:
     - cp ~/signal-desktop_$VERSION.tar.xz .
     - doas mkdir -p /opt/pakrepo
     - doas chown "$USER" /opt/pakrepo
-    - flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+    - flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
   artifacts:
     when: always
     paths:

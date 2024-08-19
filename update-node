@@ -11,4 +11,6 @@ fi
 sed -i "s:ENV NODE_VERSION=.*:ENV NODE_VERSION=v${node_version}:" Dockerfile
 curl -sLO https://nodejs.org/dist/v${node_version}/node-v${node_version}-linux-arm64.tar.gz
 sha256sum node-v${node_version}-linux-arm64.tar.gz > node.sums
+curl -sLO https://nodejs.org/dist/v${node_version}/node-v${node_version}-linux-x64.tar.gz
+sha256sum node-v${node_version}-linux-x64.tar.gz >> node.sums
 sed -i "s:node:/opt/node:" node.sums
