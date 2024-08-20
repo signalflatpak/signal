@@ -7,12 +7,12 @@ This repository is a fork of [undef1/signal-desktop-builder](https://gitlab.com/
 
 ## Installing my Flatpak build
 
-For directions on installing the flatpak, seek [here](https://elagost.com/flatpak).
+For directions on installing the flatpak, seek [here](https://signalflatpak.github.io/signal).
 
 ## Installing via .deb or .flatpak bundle
 
 - The upstream repo provides .deb binaries [here](https://gitlab.com/undef1/signal-desktop-builder/-/packages) for some releases.
-- This repo provides .deb and .flatpak binaries as release artifacts [here](https://github.com/adamthiede/signal-desktop-builder/releases)
+- This repo provides .deb and .flatpak binaries as release artifacts [here](https://github.com/signalflatpak/signal/releases)
 
 ## Building Signal
 
