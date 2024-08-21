@@ -124,8 +124,6 @@ I also have create an `autobuild.sh` script to do all of this for you!
 
 ## See also:
 
-https://github.com/lsfxz/ringrtc/tree/aarch64
-https://github.com/lsfxz/ringrtc/tree/x86_64
 https://gitlab.com/undef1/Snippets/-/snippets/2100495
 https://gitlab.com/ohfp/pinebookpro-things/-/tree/master/signal-desktop
 Flatpak based on [Flathub Sigal Desktop builds](https://github.com/flathub/org.signal.Signal/)
