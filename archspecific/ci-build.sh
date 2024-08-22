@@ -15,10 +15,10 @@ podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn b
 podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn build:release --ARCHSPECIFICVARIABLESHORT --linux --dir
 podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn build:release --ARCHSPECIFICVARIABLESHORT --linux deb
 
-podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSION mv linux-unpacked signal
-podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSION tar cJvf signal-desktop_${VERSION}.tar.xz signal
+#podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSION mv linux-unpacked signal
+#podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSION tar cJvf signal-desktop_${VERSION}.tar.xz signal
 
 podman exec -it --env-file=env signal-desktop-$VERSION ls /Signal-Desktop/release/*.deb
 podman cp signal-desktop-${VERSION}:/Signal-Desktop/release/signal-desktop*.deb ~/signal-desktop.deb
-podman cp signal-desktop-${VERSION}:/Signal-Desktop/release/signal-desktop_${VERSION}.tar.xz ~/signal-desktop_${VERSION}.tar.xz
+#podman cp signal-desktop-${VERSION}:/Signal-Desktop/release/signal-desktop_${VERSION}.tar.xz ~/signal-desktop_${VERSION}.tar.xz
 
