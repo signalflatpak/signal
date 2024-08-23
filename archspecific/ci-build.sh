@@ -7,13 +7,12 @@ podman create --name=signal-desktop-$VERSION -it localhost/signal-desktop-image-
 podman start signal-desktop-$VERSION
 ##podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION bash -c "echo $PATH"
 podman exec -it --env-file=env signal-desktop-$VERSION bash -i -c /signal-buildscript.sh
-podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn install --non-interactive
-podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn install --frozen-lockfile --non-interactive
+podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION npm install --non-interactive
+podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION npm install --frozen-lockfile --non-interactive
 podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION rm -rf ts/test-mock
-podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn generate
-podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn build:webpack
-podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn build:release --ARCHSPECIFICVARIABLESHORT --linux --dir
-podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION yarn build:release --ARCHSPECIFICVARIABLESHORT --linux deb
+podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION npm generate
+podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION npm run build:release --ARCHSPECIFICVARIABLESHORT --linux --dir
+podman exec -it --env-file=env -w /Signal-Desktop signal-desktop-$VERSION npm run build:release --ARCHSPECIFICVARIABLESHORT --linux deb
 
 #podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSION mv linux-unpacked signal
 #podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSION tar cJvf signal-desktop_${VERSION}.tar.xz signal
