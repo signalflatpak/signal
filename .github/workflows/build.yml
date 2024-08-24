@@ -169,7 +169,7 @@ jobs:
           path: checksums.txt
           name: checksums.txt
 
-d-publish-flatpaks:
+  d-publish-flatpaks:
     if: startsWith(github.ref, 'refs/tags/')
     needs:
       - b-build-signal-arm64
