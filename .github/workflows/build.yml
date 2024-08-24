@@ -10,6 +10,7 @@ on:
   workflow_dispatch:
 jobs:
   a-publish-release:
+    if: startsWith(github.ref, 'refs/tags/')
     #runs-on: self-hosted
     runs-on: ubuntu-latest
     name: '1 publish release'
@@ -101,7 +102,6 @@ jobs:
         with:
           path: signal-desktop_amd64.deb
           name: signal-desktop_amd64.deb
- 
 
   c-build-flatpaks:
     needs:
@@ -127,12 +127,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: debs
-      - name: install deps
+      - name: move debs
         shell: bash
         run: |
           # checking if debs are downloaded
           ls -alh debs/
           mv debs/*/*.deb .
+      - name: install deps
+        shell: bash
+        run: |
           sha256sum signal-desktop*deb | tee -a checksums.txt
           sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
       - name: install flatpak deps
@@ -160,6 +163,39 @@ jobs:
           flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
           flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
           sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
+      - name: Upload checksums.txt
+        uses: actions/upload-artifact@v4
+        with:
+          path: checksums.txt
+          name: checksums.txt
+
+d-publish-flatpaks:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - b-build-signal-arm64
+      - b-build-signal-amd64
+    #runs-on: self-hosted
+    runs-on: ubuntu-latest
+    name: 'publish flatpaks'
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: debs
+      - name: download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: checksums.txt
+      - name: move debs and checksums
+        shell: bash
+        run: |
+          # checking if debs and checksums are downloaded
+          ls -alh debs/
+          mv debs/*/*.deb .
+          ls -alh checksums.txt/
+          mv checksums.txt/*/*.txt .
       - name: Upload release artifacts
         env:
           VERSION: "7.21.0"
@@ -183,4 +219,3 @@ jobs:
           git add repo
           git commit -m "repo update for $VERSION"
           git push
-
