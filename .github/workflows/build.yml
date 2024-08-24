@@ -178,6 +178,7 @@ jobs:
   d-publish-flatpaks:
     if: startsWith(github.ref, 'refs/tags/')
     needs:
+      - a-publish-release
       - c-build-flatpaks
     #runs-on: self-hosted
     runs-on: ubuntu-latest
