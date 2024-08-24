@@ -18,6 +18,6 @@ podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSIO
 podman exec -it --env-file=env -w /Signal-Desktop/release signal-desktop-$VERSION tar cJf signal-desktop_${VERSION}.tar.xz signal
 
 podman exec -it --env-file=env signal-desktop-$VERSION ls -al /Signal-Desktop/release/
-podman cp signal-desktop-${VERSION}:/Signal-Desktop/release/signal-desktop_${VERSION}_ARCHSPECIFICVARIABLESHORT.deb ~/signal-desktop.deb
+podman cp signal-desktop-${VERSION}:/Signal-Desktop/release/signal-desktop_${VERSION}_ARCHSPECIFICVARIABLECOMMON.deb ~/signal-desktop.deb
 podman cp signal-desktop-${VERSION}:/Signal-Desktop/release/signal-desktop_${VERSION}.tar.xz ~/signal-desktop_${VERSION}.tar.xz
 
