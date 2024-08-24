@@ -202,7 +202,7 @@ jobs:
       - name: checkout gh-pages branch
         uses: actions/checkout@v4
         with:
-          ref: gh-pages
+          ref: 1a2b9404b5f768018b3bb2894f6b22da69c6f27c
       - name: sync to gh-pages branch repo dir and commit
         env:
           VERSION: "7.21.0"
