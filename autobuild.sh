@@ -34,7 +34,7 @@ sleep 3
 
 ./update-node $branch
 # replace the clone line in Dockerfile with the new branch
-sed -e "s,RUN git clone https://github.com/signalapp/Signal-Desktop.*$,RUN git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i Dockerfile
+sed -e "s,RUN git clone https://github.com/signalapp/Signal-Desktop.*$,RUN git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i archspecific/Dockerfile
 # replace the VERSION variable in the CI manifests
 sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .github/workflows/build.yml
 sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .build.yml
