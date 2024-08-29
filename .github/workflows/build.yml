@@ -193,7 +193,7 @@ jobs:
       - name: download release artifacts
         uses: actions/download-artifact@v4
         with:
-          path: checksums.txt
+          path: checksums
       - name: move debs and checksums
         shell: bash
         run: |
@@ -201,7 +201,7 @@ jobs:
           ls -alh debs/
           mv debs/*/*.deb .
           ls -alh checksums.txt/
-          mv checksums.txt/*/*.txt .
+          mv checksums/*/*.txt .
       - name: Upload release artifacts
         env:
           VERSION: "7.22.0"
