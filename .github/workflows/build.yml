@@ -186,10 +186,20 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
+      - name: Set env.BRANCH
+        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: download release artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+      - name: install secrets
+        shell: bash
+        env:
+          GPG_KEY: ${{secrets.GPG_KEY}}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qq -y gpg openssh-client
+          echo "$GPG_KEY" | gpg --import
       - name: move artifacts to current dir
         shell: bash
         run: |
@@ -197,6 +207,7 @@ jobs:
           ls -alh artifacts/
           mv artifacts/*/* .
           ls -alh *.deb
+          ls -alh *.flatpak
           ls -alh checksums.txt
       - name: Upload release artifacts
         env:
@@ -206,6 +217,32 @@ jobs:
           release-tag: ${{ env.VERSION }}
           files: "signal-desktop_arm64.deb;signal-desktop_amd64.deb;signal_amd64.flatpak;signal_arm64.flatpak;checksums.txt"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: install deps
+        shell: bash
+        run: |
+          sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
+      - name: install flatpak deps
+        shell: bash
+        env:
+          CI_USER: runner
+        run: |
+          sudo rm -rf /opt/pakrepo/
+          sudo mkdir -p /opt/pakrepo
+          sudo chown "$USER" /opt/pakrepo
+          sudo flatpak update --noninteractive -y
+          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//23.08 org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08 -y
+          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//23.08 org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08 -y
+      - name: build flatpaks
+        shell: bash
+        run: |
+          # arm64
+          bash arch-specific.sh arm64
+          flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+          sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
+          # amd64
+          bash arch-specific.sh amd64
+          flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
       - name: checkout gh-pages branch
         uses: actions/checkout@v4
         with:
