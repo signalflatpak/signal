@@ -19,7 +19,7 @@ COPY signal-buildscript.sh /
 RUN chmod +x /signal-buildscript.sh
 
 # Clone signal
-RUN git clone https://github.com/signalapp/Signal-Desktop -b 7.21.x
+RUN git clone https://github.com/signalapp/Signal-Desktop -b 7.22.x
 COPY patches/0001-Remove-no-sandbox-patch.patch /
 COPY patches/0001-Remove-stories-icon.patch /
 COPY patches/0001-Minimize-gutter-on-small-screens.patch /
