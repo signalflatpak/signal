@@ -256,4 +256,4 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git add repo
           git commit -m "repo update for $VERSION"
-          git push -f
+          git push -f origin HEAD:gh-pages
