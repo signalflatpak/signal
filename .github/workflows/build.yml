@@ -239,7 +239,6 @@ jobs:
           # arm64
           bash arch-specific.sh arm64
           flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-          sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
           # amd64
           bash arch-specific.sh amd64
           flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
