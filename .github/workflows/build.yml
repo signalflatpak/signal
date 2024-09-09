@@ -12,7 +12,7 @@ jobs:
   a-publish-release:
     if: startsWith(github.ref, 'refs/tags/')
     #runs-on: self-hosted
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: '1 publish release'
     steps:
       - name: Create Release
@@ -30,7 +30,7 @@ jobs:
 
   b-build-signal-arm64:
     #runs-on: self-hosted
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: '2 build signal arm64'
     steps:
       - name: Set env.BRANCH
@@ -70,7 +70,7 @@ jobs:
 
   b-build-signal-amd64:
     #runs-on: self-hosted
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: '2 build signal amd64'
     steps:
       - name: Set env.BRANCH
@@ -104,7 +104,7 @@ jobs:
       - b-build-signal-arm64
       - b-build-signal-amd64
     #runs-on: self-hosted
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: 'build flatpaks'
     steps:
       - name: Set env.BRANCH
@@ -181,7 +181,7 @@ jobs:
       - a-publish-release
       - c-build-flatpaks
     #runs-on: self-hosted
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: 'publish flatpaks'
     steps:
       - name: checkout code
