@@ -15,7 +15,7 @@ packages:
 sources:
   - https://git.sr.ht/~elagost/signal-desktop-builder
 environment:
-  VERSION: "7.23.0"
+  VERSION: "7.24.0"
 secrets:
   - 07d27e19-a690-46d1-9f0a-4d391f5968b8
   - 07e0c486-ee68-4149-a12e-fa082897aefc
