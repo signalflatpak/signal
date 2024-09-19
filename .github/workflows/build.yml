@@ -52,7 +52,7 @@ jobs:
       - name: build deb
         shell: bash
         env:
-          VERSION: "7.24.1"
+          VERSION: "7.25.0"
         run: |
           set -x
           echo "Version is: $VERSION"
@@ -84,7 +84,7 @@ jobs:
       - name: build deb
         shell: bash
         env:
-          VERSION: "7.24.1"
+          VERSION: "7.25.0"
         run: |
           set -x
           echo "Version is: $VERSION"
@@ -211,7 +211,7 @@ jobs:
           ls -alh checksums.txt
       - name: Upload release artifacts
         env:
-          VERSION: "7.24.1"
+          VERSION: "7.25.0"
         uses: AButler/upload-release-assets@v3.0
         with:
           release-tag: ${{ env.VERSION }}
@@ -248,7 +248,7 @@ jobs:
           ref: 1a2b9404b5f768018b3bb2894f6b22da69c6f27c
       - name: sync to gh-pages branch repo dir and commit
         env:
-          VERSION: "7.24.1"
+          VERSION: "7.25.0"
         shell: bash
         run: |
           rsync -a --delete /opt/pakrepo/ ./repo/
