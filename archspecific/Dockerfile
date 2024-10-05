@@ -9,10 +9,6 @@ RUN gem install fpm
 ENV USE_SYSTEM_FPM=true
 RUN mkdir -p /usr/include/ARCHSPECIFICVARIABLELONG-linux-gnu/
 # pulled from https://raw.githubusercontent.com/node-ffi-napi/node-ffi-napi/master/deps/libffi/config/linux/ARCHSPECIFICVARIABLESHORT/fficonfig.h because its not in debian
-COPY fficonfig.h /usr/include/ARCHSPECIFICVARIABLELONG-linux-gnu/
-COPY rustup-init /rustup-init
-RUN chmod +x /rustup-init
-RUN /rustup-init -y
 
 # Buildscripts
 COPY signal-buildscript.sh /
