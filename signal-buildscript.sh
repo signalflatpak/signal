@@ -8,13 +8,8 @@ pushd /Signal-Desktop
 git-lfs install
 git config --global user.name name
 git config --global user.email name@example.com
-git am ../0001-Remove-stories-icon.patch
-git am ../0001-Minimize-gutter-on-small-screens.patch
-git am ../0001-Always-return-MIN_WIDTH-from-storage.patch
 # The mock tests are broken on custom arm builds
 sed -r '/mock/d' -i package.json
-# Remove "--no-sandbox" switch from `app-builder-lib` dependency
-git apply ../0001-Remove-no-sandbox-patch.patch
 # Dry run
 sed -r 's#("better-sqlite3": ").*"#\1file:../better-sqlite3"#' -i package.json
 # This may have to be cancelled and run again to get it to actually rebuild deps...
