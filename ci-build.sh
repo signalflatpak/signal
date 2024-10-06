@@ -19,6 +19,7 @@ fi
 declare -a archspecific=("Dockerfile" "flatpak.yml")
 
 for filename in ${archspecific[@]}; do
+	git restore $filename
 	sed -i "s/ARCHSPECIFICVARIABLELONG/$ARCHSPECIFICVARIABLELONG/g" "$filename"
 	sed -i "s/ARCHSPECIFICVARIABLECOMMON/$ARCHSPECIFICVARIABLECOMMON/g" "$filename"
 	sed -i "s/ARCHSPECIFICVARIABLESHORT/$ARCHSPECIFICVARIABLESHORT/g" "$filename"
