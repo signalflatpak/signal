@@ -16,11 +16,6 @@ RUN chmod +x /signal-buildscript.sh
 
 # Clone signal
 RUN git clone https://github.com/signalapp/Signal-Desktop -b 7.27.x
-COPY patches/0001-Remove-no-sandbox-patch.patch /
-COPY patches/0001-Remove-stories-icon.patch /
-COPY patches/0001-Minimize-gutter-on-small-screens.patch /
-COPY patches/0001-reduce-minimum-dimensions-to-allow-for-mobile-screen.patch /
-COPY patches/0001-Always-return-MIN_WIDTH-from-storage.patch /
 
 # Sometimes crashes due to upstream running out of git-lfs download credit
 RUN git clone https://github.com/signalapp/better-sqlite3.git || true
