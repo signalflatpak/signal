@@ -35,11 +35,7 @@ sudo apt install -qq bash rsync podman flatpak elfutils coreutils slirp4netns ro
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 ```
 ```
-sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//22.08 org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 -y
-```
-or
-```
-sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//22.08 org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 -y
+sudo flatpak install --noninteractive --arch=[x86_64/aarch64] flathub org.electronjs.Electron2.BaseApp//22.08 org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 -y
 ```
 
 ### Running Build Scripts
@@ -50,7 +46,7 @@ First, though, run `./update-node.sh 6.12.x` where `6.12.x` is the name of the b
 
 ```
 export VERSION="6.12.0"
-bash ci-build.sh
+bash ci-build.sh [arm64/amd64]
 podman stop signal-desktop-$VERSION
 cp ~/signal-desktop.deb .
 ```
@@ -93,20 +89,15 @@ pub   rsa4096/FBEF43DC8C6BE9A7 2022-06-04 [SC]
 Build the flatpak:
 
 ```
-flatpak-builder --arch=aarch64 --gpg-sign=<Key ID> --repo=./repodir --force-clean ./builddir flatpak.yml
-```
-or
-```
-flatpak-builder --arch=x86_64 --gpg-sign=<Key ID> --repo=./repodir --force-clean ./builddir flatpak.yml
+bash ci-build.sh [arm64/amd64] flatpak
+flatpak-builder --arch=[x86_64/aarch64] --gpg-sign=<Key ID> --repo=./repodir --force-clean ./builddir flatpak.yml
 ```
 
 Now you have your `.flatpakrepo` file and your `./repodir`. You can put those on a web server and tell people about them, or use them yourself.
 
 If you just want to build a standalone .flatpak bundle that you can install anywhere, instead of building a repo:
 
-`flatpak build-bundle --arch=aarch64 ./repodir ./signal.flatpak org.signal.Signal master`
-or
-`flatpak build-bundle --arch=x86_64 ./repodir ./signal.flatpak org.signal.Signal master`
+`flatpak build-bundle --arch=[x86_64/aarch64] ./repodir ./signal.flatpak org.signal.Signal master`
 
 ## Github Actions notes:
 
