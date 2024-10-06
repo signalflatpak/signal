@@ -10,7 +10,6 @@ git config --global user.name name
 git config --global user.email name@example.com
 # The mock tests are broken on custom arm builds
 sed -r '/mock/d' -i package.json
-# Remove "--no-sandbox" switch from `app-builder-lib` dependency
 # Dry run
 sed -r 's#("better-sqlite3": ").*"#\1file:../better-sqlite3"#' -i package.json
 # This may have to be cancelled and run again to get it to actually rebuild deps...
