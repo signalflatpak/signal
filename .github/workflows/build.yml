@@ -1,6 +1,10 @@
 name: build and deploy signal
 on:
   push:
+    pull_request:
+      branches:
+        - main
+        - master
     tags:
       - '*'
         #branches:
