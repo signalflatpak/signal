@@ -15,7 +15,7 @@ COPY signal-buildscript.sh /
 RUN chmod +x /signal-buildscript.sh
 
 # Clone signal
-RUN git clone https://github.com/signalapp/Signal-Desktop -b 7.27.x
+RUN git clone https://github.com/signalapp/Signal-Desktop -b 7.28.x
 
 # Sometimes crashes due to upstream running out of git-lfs download credit
 RUN git clone https://github.com/signalapp/better-sqlite3.git || true
