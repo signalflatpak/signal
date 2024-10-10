@@ -5,7 +5,7 @@
 # other CI build files.
 
 variables:
-  VERSION: "7.27.0"
+  VERSION: "7.28.0"
 
 before_script:
   - shopt -s expand_aliases
