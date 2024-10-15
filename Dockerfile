@@ -6,7 +6,6 @@ RUN apt -qq update
 RUN apt -qq install -y python3 gcc g++ make build-essential git git-lfs libffi-dev libssl-dev libglib2.0-0 libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libgdk-pixbuf-2.0-0 libgtk-3-0 libdrm2 libgbm1 ruby ruby-dev curl wget clang llvm lld clang-tools generate-ninja ninja-build pkg-config tcl wget
 RUN gem install fpm
 ENV USE_SYSTEM_FPM=true
-RUN mkdir -p /usr/include/ARCHSPECIFICVARIABLELONG-linux-gnu/
 
 # Clone signal
 RUN git clone https://github.com/signalapp/Signal-Desktop -b 7.28.x
