@@ -41,7 +41,9 @@ sudo flatpak install --noninteractive --arch=[x86_64/aarch64] flathub org.electr
 
 ## Running Build Scripts
 
-Fairly simple. `ci-build.sh` builds signal in an AMD or ARM docker container and copies the .deb out.
+`autobuild.sh` should update and export all these things for you. If these steps are ever unhelpful or out of date, look at what scripts the github action runs and pay attention to exported variables.
+
+`ci-build.sh` builds signal in an AMD or ARM docker container and copies the .deb out.
 
 ```
 export VERSION="6.12.0"
