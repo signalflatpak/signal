@@ -38,13 +38,13 @@ podman create --name=signal-desktop-$VERSION -it localhost/signal-desktop-image-
 podman start signal-desktop-$VERSION
 ##podman exec -it --env="$ENV" -w /Signal-Desktop signal-desktop-$VERSION bash -c "echo $PATH"
 podman exec -it --env="$ENV" signal-desktop-$VERSION bash -i -c pushd /Signal-Desktop
-podman exec -it --env="$ENV" signal-desktop-$VERSION bash -i -c git-lfs install
-podman exec -it --env="$ENV" signal-desktop-$VERSION bash -i -c git config --global user.name name
-podman exec -it --env="$ENV" signal-desktop-$VERSION bash -i -c git config --global user.email name@example.com
+podman exec -it --env="$ENV" -w /Signal-Desktop signal-desktop-$VERSION bash -i -c git-lfs install
+podman exec -it --env="$ENV" -w /Signal-Desktop signal-desktop-$VERSION bash -i -c git config --global user.name name
+podman exec -it --env="$ENV" -w /Signal-Desktop signal-desktop-$VERSION bash -i -c git config --global user.email name@example.com
 # The mock tests are broken on custom arm builds
-podman exec -it --env="$ENV" signal-desktop-$VERSION bash -i -c sed -r '/mock/d' -i package.json
+podman exec -it --env="$ENV" -w /Signal-Desktop signal-desktop-$VERSION bash -i -c sed -r '/mock/d' -i package.json
 # Dry run
-podman exec -it --env="$ENV" signal-desktop-$VERSION bash -i -c sed -r 's#("better-sqlite3": ").*"#\1file:../better-sqlite3"#' -i package.json
+podman exec -it --env="$ENV" -w /Signal-Desktop signal-desktop-$VERSION bash -i -c sed -r 's#("better-sqlite3": ").*"#\1file:../better-sqlite3"#' -i package.json
 podman exec -it --env="$ENV" -w /Signal-Desktop signal-desktop-$VERSION npm install --non-interactive
 podman exec -it --env="$ENV" -w /Signal-Desktop signal-desktop-$VERSION npm install --frozen-lockfile --non-interactive
 podman exec -it --env="$ENV" -w /Signal-Desktop signal-desktop-$VERSION rm -rf ts/test-mock
