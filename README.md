@@ -40,7 +40,7 @@ sudo flatpak install --noninteractive --arch=[x86_64/aarch64] flathub org.electr
 
 ### Running Build Scripts
 
-Fairly simple. `ci-build.sh` invokes `signal-buildscript.sh`, builds signal in an AMD or ARM docker container and copies the .deb out. It looks like there's some duplication of work between them; for historical reasons this was necessary because one of them would fail due to non-interactivity. I think if you run it by hand in tmux or something, you can comment out most of `ci-build.sh`.
+Fairly simple. `ci-build.sh` builds signal in an AMD or ARM docker container and copies the .deb out.
 
 First, though, run `./update-node.sh 6.12.x` where `6.12.x` is the name of the branch you are building. If you get a new nodejs version, update the Dockerfile's `ENV NODE_VERSION` line.
 

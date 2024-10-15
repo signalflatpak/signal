@@ -10,10 +10,6 @@ ENV USE_SYSTEM_FPM=true
 RUN mkdir -p /usr/include/ARCHSPECIFICVARIABLELONG-linux-gnu/
 # pulled from https://raw.githubusercontent.com/node-ffi-napi/node-ffi-napi/master/deps/libffi/config/linux/ARCHSPECIFICVARIABLESHORT/fficonfig.h because its not in debian
 
-# Buildscripts
-COPY signal-buildscript.sh /
-RUN chmod +x /signal-buildscript.sh
-
 # Clone signal
 RUN git clone https://github.com/signalapp/Signal-Desktop -b 7.28.x
 
