@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# An attempt at a cron job to auto build this thing
+
+SIGNAL_VERSION='v7.28.0'
+
 deps(){
 	dep_packages="jq curl"
 	sudo apt -qq install $dep_packages
 }
-
 
 # get latest non-beta release version from github API
 latest_ver=$(curl -s https://api.github.com/repos/signalapp/signal-desktop/releases|jq -r '[.[] | select(.prerelease|not).tag_name][0]')
@@ -15,10 +16,10 @@ if [[ "$1" == "beta" ]];then
 fi
 
 # determine if a build needs to be done at all
-if [[ "$latest_ver" == "$(cat autobuild.version)" ]];then
+if [[ "$latest_ver" == "$SIGNAL_VERSION" ]];then
 	exit 0
 else
-	echo $latest_ver > autobuild.version
+	sed -i "0,/SIGNAL_VERSION/{s/SIGNAL_VERSION=.*/SIGNAL_VERSION='${latest_ver}'/}" $0
 fi
 
 
@@ -32,7 +33,7 @@ echo "V $version Branch $branch"
 
 sleep 3
 
-node_version=$(curl -s https://raw.githubusercontent.com/signalapp/Signal-Desktop/${branch}/package.json | jq .engines.node | tr -d '"')
+node_version=$(curl -s https://raw.githubusercontent.com/signalapp/Signal-Desktop/${branch}/package.json | jq -r .engines.node)
 if [ ! "$(cat Dockerfile | grep NODE_VERSION= | sed 's/.*v//')" == "$node_version" ]; then
     sed -i "s:ENV NODE_VERSION=.*:ENV NODE_VERSION=v${node_version}:" Dockerfile
 fi
