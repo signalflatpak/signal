@@ -75,6 +75,7 @@ sed -e "s,RUN git clone https://github.com/signalapp/Signal-Desktop.*$,RUN git c
 sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .github/workflows/build.yml
 dt=$(date +%Y-%m-%d)
 sed -e "s,<release version.*,<release version=\"${latest_ver:1}\" date=\"$dt\"/>," -i org.signal.Signal.metainfo.xml
+sed -e "s,export VERSION=.*$,export VERSION=\"$version\"," -i README.md
 
 commit(){
 	git commit -am "Autobuild for $version,branch $branch"
