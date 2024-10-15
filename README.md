@@ -25,6 +25,8 @@ Github actions runs the following files:
 
 To build by hand, you will need an Ubuntu or Debian server.
 
+SourceHut and GitLab manifests were removed in [this PR](https://github.com/signalflatpak/signal/pull/19) since they were old and likely not that helpful anymore.
+
 ## Installing dependencies
 
 This needs to be done every time on CI, but only once on a self-hosted system. You can use docker instead of podman but will need to modify the scripts or set aliases yourself.
