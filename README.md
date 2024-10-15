@@ -23,9 +23,7 @@ Github actions runs the following files:
 - `.github/workflows/version_check.yml` is run daily to check for an updated upstream tag. If a new version is found, then a few files have a version variable replaced, the changes are committed, and a tag is pushed, and this triggers the second action.
 - `.github/workflows/build.yml` creates a release, builds the .deb binaries, builds the flatpak bundle files, and builds the flatpak repo. The flatpak repo folder is pushed to the github pages branch of this repo, creating an auto updating flatpak repository.
 
-To build by hand, you will need an Ubuntu or Debian server.
-
-SourceHut and GitLab manifests were removed in [this PR](https://github.com/signalflatpak/signal/pull/19) since they were old and likely not that helpful anymore.
+To build by hand, you will need a Debian-based server.
 
 ## Installing dependencies
 
@@ -41,12 +39,13 @@ sudo flatpak install --noninteractive --arch=[x86_64/aarch64] flathub org.electr
 
 ## Running Build Scripts
 
-`autobuild.sh` should update and export all these things for you. If these steps are ever unhelpful or out of date, look at what scripts the github action runs and pay attention to exported variables.
+`autobuild.sh` will pull the latest signal and node versions and replace the version number in various required files. 
 
 `ci-build.sh` builds signal in an AMD or ARM docker container and copies the .deb out.
 
 ```
-export VERSION="6.12.0"
+bash autobuild.sh
+export VERSION="7.28.0"
 bash ci-build.sh [arm64/amd64]
 podman stop signal-desktop-$VERSION
 cp ~/signal-desktop.deb .
