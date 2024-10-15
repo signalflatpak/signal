@@ -32,7 +32,10 @@ echo "V $version Branch $branch"
 
 sleep 3
 
-./update-node $branch
+node_version=$(curl -s https://raw.githubusercontent.com/signalapp/Signal-Desktop/${branch}/package.json | jq .engines.node | tr -d '"')
+if [ ! "$(cat Dockerfile | grep NODE_VERSION= | sed 's/.*v//')" == "$node_version" ]; then
+    sed -i "s:ENV NODE_VERSION=.*:ENV NODE_VERSION=v${node_version}:" Dockerfile
+fi
 # replace the clone line in Dockerfile with the new branch
 sed -e "s,RUN git clone https://github.com/signalapp/Signal-Desktop.*$,RUN git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i Dockerfile
 # replace the VERSION variable in the CI manifests
