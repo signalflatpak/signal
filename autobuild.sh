@@ -73,8 +73,6 @@ fi
 sed -e "s,RUN git clone https://github.com/signalapp/Signal-Desktop.*$,RUN git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i Dockerfile
 # replace the VERSION variable in the CI manifests
 sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .github/workflows/build.yml
-sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .build.yml
-sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .gitlab-ci.yml
 dt=$(date +%Y-%m-%d)
 sed -e "s,<release version.*,<release version=\"${latest_ver:1}\" date=\"$dt\"/>," -i org.signal.Signal.metainfo.xml
 

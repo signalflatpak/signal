@@ -5,28 +5,29 @@ which provides Signal Desktop.
 
 This repository is a fork of [undef1/signal-desktop-builder](https://gitlab.com/undef1/signal-desktop-builder)
 
-## Installing my Flatpak build
+## Installing from the flatpak repository
 
 For directions on installing the flatpak, seek [here](https://signalflatpak.github.io/signal).
 
 ## Installing via .deb or .flatpak bundle
 
-- The upstream repo provides .deb binaries [here](https://gitlab.com/undef1/signal-desktop-builder/-/packages) for some releases.
 - This repo provides .deb and .flatpak binaries as release artifacts [here](https://github.com/signalflatpak/signal/releases)
+- The upstream repo provides .deb binaries [here](https://gitlab.com/undef1/signal-desktop-builder/-/packages) for some releases.
 
-## Building Signal
+# Building this yourself
 
-The process works through CI fairly well. I've included all the files in this repository for each of the CI platforms I've made it work on.
+First: look at `autobuild.sh` - this script will pull the latest signal and node versions and replace the version number in various required files.
 
-- `.build.yml` will work for [sourcehut builds](https://builds.sr.ht). The 3 secrets are a GPG key, SSH key, and SSH config. Sourcehut helpfully lets you specify secrets of this type and will put them in the appropriate places on your builder.
-- `.github/workflows/build.yml` is for [github](https://github.com) actions. You will need the secrets I specified by name in the build manifest.
-- `.gitlab-ci.yml` is obviously for [gitlab](https://gitlab.com) ci but is kind of incomplete, since I ran it on a self-hosted runner. This one you'll need to figure out yourself.
+Github actions runs the following files:
 
-The builds take hours when cross-compiling and frequently time out in github's shared runners, but they take less time on a relatively powerful AMD or ARM server. [Oracle Cloud Free Tier](https://www.oracle.com/cloud/free/) will give you AMD or ARM servers for free. Yes, I know, it's Oracle, but this is genuinely the best way to build these. You can set one up as a self-hosted github/gitlab runner and it'll build the flatpak in 25 minutes.
+- `.github/workflows/version_check.yml` is run daily to check for an updated upstream tag. If a new version is found, then a few files have a version variable replaced, the changes are committed, and a tag is pushed, and this triggers the second action.
+- `.github/workflows/build.yml` creates a release, builds the .deb binaries, builds the flatpak bundle files, and builds the flatpak repo. The flatpak repo folder is pushed to the github pages branch of this repo, creating an auto updating flatpak repository.
 
 To build by hand, you will need an Ubuntu or Debian server.
 
-### Installing dependencies
+SourceHut and GitLab manifests were removed in [this PR](https://github.com/signalflatpak/signal/pull/19) since they were old and likely not that helpful anymore.
+
+## Installing dependencies
 
 This needs to be done every time on CI, but only once on a self-hosted system. You can use docker instead of podman but will need to modify the scripts or set aliases yourself.
 
@@ -35,12 +36,14 @@ sudo apt install -qq bash rsync podman flatpak elfutils coreutils slirp4netns ro
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 ```
 ```
-sudo flatpak install --noninteractive --arch=[x86_64/aarch64] flathub org.electronjs.Electron2.BaseApp//22.08 org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08 -y
+sudo flatpak install --noninteractive --arch=[x86_64/aarch64] flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
 ```
 
-### Running Build Scripts
+## Running Build Scripts
 
-Fairly simple. `ci-build.sh` builds signal in an AMD or ARM docker container and copies the .deb out.
+`autobuild.sh` should update and export all these things for you. If these steps are ever unhelpful or out of date, look at what scripts the github action runs and pay attention to exported variables.
+
+`ci-build.sh` builds signal in an AMD or ARM docker container and copies the .deb out.
 
 ```
 export VERSION="6.12.0"
@@ -48,7 +51,7 @@ bash ci-build.sh [arm64/amd64]
 podman stop signal-desktop-$VERSION
 cp ~/signal-desktop.deb .
 ```
-This build takes 2-3 hours.
+If cross-compiling, the build can take over an hour on a powerful machine.
 
 If you just want the .deb, you now have it. Congrats.
 
@@ -67,7 +70,7 @@ Url=https://example.com/flatpak/signal-arm-repo/
 GPGKey=<Key Data>
 ```
 
-To get the key data, run `gpg --armor --export <key email or ID> > key.gpg`. 
+To get the key data, run `gpg --armor --export <key email or ID> > key.gpg`.
 
 Before you send that key anywhere, inspect `key.gpg` and make sure it begins and ends with `PGP PUBLIC KEY BLOCK` and __NOT__ `PGP PRIVATE KEY BLOCK`. Your private key should be kept private.
 
@@ -97,19 +100,7 @@ If you just want to build a standalone .flatpak bundle that you can install anyw
 
 `flatpak build-bundle --arch=[x86_64/aarch64] ./repodir ./signal.flatpak org.signal.Signal master`
 
-## Github Actions notes:
-
-to publish a new release:
-
-- find latest stable tag from [upstream repo](https://github.com/signalapp/Signal-Desktop/releases)
-- edit `Dockerfile` and set git clone to pull the correct branch (format is "5.45.x")
-- update `org.signal.Signal.metainfo.xml` with the new version
-- edit the build yml file (depending on which CI you're using) and set `VERSION` to new version
-- push changes; this should trigger a new build
-
-I also have create an `autobuild.sh` script to do all of this for you!
-
-## See also:
+# See also:
 
 https://gitlab.com/undef1/Snippets/-/snippets/2100495
 https://gitlab.com/ohfp/pinebookpro-things/-/tree/master/signal-desktop
