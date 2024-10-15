@@ -2,6 +2,38 @@
 
 SIGNAL_VERSION='v7.28.0'
 
+usage() {
+	echo ""
+	echo "Options:"
+	echo " -b - fetch beta build. Optional."
+	echo " -p - push to git repo. Optional."
+	echo " -h - display this help text."
+	echo ""
+}
+
+PUSH='false'
+BETA='false'
+
+while getopts 'pbh' OPTION; do
+	case "$OPTION" in
+		p)
+			PUSH='true'
+			;;
+		b)
+			BETA='true'
+			;;
+		h)
+			usage
+			exit 0
+			;;
+		*)
+			usage
+			exit 1
+			;;
+	esac
+done
+
+
 deps(){
 	dep_packages="jq curl"
 	sudo apt -qq install $dep_packages
@@ -10,8 +42,8 @@ deps(){
 # get latest non-beta release version from github API
 latest_ver=$(curl -s https://api.github.com/repos/signalapp/signal-desktop/releases|jq -r '[.[] | select(.prerelease|not).tag_name][0]')
 
-# if run with "./autobuild.sh beta" then it will not filter out prerelease
-if [[ "$1" == "beta" ]];then
+# if run with "./autobuild.sh -b" then it will not filter out prerelease
+if [[ "$BETA" == "true" ]];then
 	latest_ver=$(curl -s https://api.github.com/repos/signalapp/signal-desktop/releases|jq -r '[.[].tag_name][0]')
 fi
 
@@ -52,5 +84,8 @@ commit(){
 	git push
 	git push -f origin $version
 }
-git status | grep "nothing to commit, working tree clean" || commit
+
+if [[ "$PUSH" == "true" ]];then
+	git status | grep "nothing to commit, working tree clean" || commit
+fi
 
