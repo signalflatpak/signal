@@ -51,7 +51,7 @@ fi
 if [[ "$latest_ver" == "$SIGNAL_VERSION" ]];then
 	exit 0
 else
-	sed -i "0,/SIGNAL_VERSION/{s/SIGNAL_VERSION=.*/SIGNAL_VERSION='${latest_ver}'/}" $0
+	sed -e "s/$SIGNAL_VERSION/$latest_ver/" -i $0
 fi
 
 
