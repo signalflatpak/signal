@@ -42,8 +42,6 @@ sudo flatpak install --noninteractive --arch=[x86_64/aarch64] flathub org.electr
 
 Fairly simple. `ci-build.sh` builds signal in an AMD or ARM docker container and copies the .deb out.
 
-First, though, run `./update-node.sh 6.12.x` where `6.12.x` is the name of the branch you are building. If you get a new nodejs version, update the Dockerfile's `ENV NODE_VERSION` line.
-
 ```
 export VERSION="6.12.0"
 bash ci-build.sh [arm64/amd64]
@@ -105,8 +103,6 @@ to publish a new release:
 
 - find latest stable tag from [upstream repo](https://github.com/signalapp/Signal-Desktop/releases)
 - edit `Dockerfile` and set git clone to pull the correct branch (format is "5.45.x")
-- run `update-node 5.45.x` to set Dockefile to use upstream's specified nodejs version
-    - for '5.45.1' or other versions, you use the same '5.45.x' argument.
 - update `org.signal.Signal.metainfo.xml` with the new version
 - edit the build yml file (depending on which CI you're using) and set `VERSION` to new version
 - push changes; this should trigger a new build
