@@ -32,79 +32,7 @@ jobs:
           name: ${{ github.ref }}
           tag: ${{ github.ref }}
 
-  b-build-signal-arm64:
-    #runs-on: self-hosted
-    runs-on: ubuntu-24.04
-    name: '2 build signal arm64'
-    steps:
-      - name: Set env.BRANCH
-        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
-      - name: install secrets
-        shell: bash
-        env:
-          GPG_KEY: ${{secrets.GPG_KEY}}
-        run: |
-          sudo apt update
-          sudo apt install -qq -y gpg openssh-client
-          echo "$GPG_KEY" | gpg --import
-      - name: checkout code
-        uses: actions/checkout@v4
-      - name: install deps
-        shell: bash
-        run: |
-          sudo apt update && sudo apt install -qq -y bash rsync podman flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
-      - name: build deb
-        shell: bash
-        env:
-          VERSION: "7.29.0"
-        run: |
-          set -x
-          echo "Version is: $VERSION"
-          bash ci-build.sh arm64
-          podman stop signal-desktop-$VERSION
-          cp ~/signal-desktop.deb signal-desktop_arm64.deb
-          sha256sum signal-desktop_arm64.deb | tee checksums_arm64.txt
-      - name: Upload signal-desktop_arm64.deb
-        uses: actions/upload-artifact@v4
-        with:
-          path: signal-desktop_arm64.deb
-          name: signal-desktop_arm64.deb
-
-
-  b-build-signal-amd64:
-    #runs-on: self-hosted
-    runs-on: ubuntu-24.04
-    name: '2 build signal amd64'
-    steps:
-      - name: Set env.BRANCH
-        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
-      - name: checkout code
-        uses: actions/checkout@v4
-      - name: install deps
-        shell: bash
-        run: |
-          sudo apt update && sudo apt install -qq -y bash rsync podman flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
-      - name: build deb
-        shell: bash
-        env:
-          VERSION: "7.29.0"
-        run: |
-          set -x
-          echo "Version is: $VERSION"
-          bash ci-build.sh amd64
-          podman stop signal-desktop-$VERSION
-          cp ~/signal-desktop.deb signal-desktop_amd64.deb
-          sha256sum signal-desktop_amd64.deb | tee checksums_amd64.txt
-      - name: Upload signal-desktop_amd64.deb
-        uses: actions/upload-artifact@v4
-        with:
-          path: signal-desktop_amd64.deb
-          name: signal-desktop_amd64.deb
-
   c-build-flatpaks:
-    needs:
-      - b-build-signal-arm64
-      - b-build-signal-amd64
     #runs-on: self-hosted
     runs-on: ubuntu-24.04
     name: 'build flatpaks'
@@ -121,20 +49,9 @@ jobs:
           echo "$GPG_KEY" | gpg --import
       - name: checkout code
         uses: actions/checkout@v4
-      - name: download release artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: debs
-      - name: move debs
-        shell: bash
-        run: |
-          # checking if debs are downloaded
-          ls -alh debs/
-          mv debs/*/*.deb .
       - name: install deps
         shell: bash
         run: |
-          sha256sum signal-desktop*deb | tee -a checksums.txt
           sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
       - name: install flatpak deps
         shell: bash
@@ -146,18 +63,25 @@ jobs:
           sudo chown "$USER" /opt/pakrepo
           sudo flatpak update --noninteractive -y
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
-          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
+          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.node20//24.08 -y
+          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.node20//24.08 -y
+      - name: setup flatpaks
+        shell: bash
+        run: |
+          git clone https://github.com/flatpak/flatpak-builder-tools.git
+          cd flatpak-builder-tools/node
+          pipx install .
+          cd ../../
+          export PATH=/opt/pipx_bin:$PATH
+          bash autobuild.sh -f
       - name: build flatpaks
         shell: bash
         run: |
           # arm64
-          bash ci-build.sh arm64 flatpak
           flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
           flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
           sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
           # amd64
-          bash ci-build.sh amd64 flatpak
           flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
           flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
           sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
@@ -222,7 +146,7 @@ jobs:
       - name: install deps
         shell: bash
         run: |
-          sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
+          sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils binfmt-support fuse-overlayfs flatpak-builder qemu-user-static pipx
       - name: install flatpak deps
         shell: bash
         env:
@@ -233,16 +157,14 @@ jobs:
           sudo chown "$USER" /opt/pakrepo
           sudo flatpak update --noninteractive -y
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
-          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
+          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.node20//24.08 -y
+          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.node20//24.08 -y
       - name: build flatpaks
         shell: bash
         run: |
           # arm64
-          bash ci-build.sh arm64 flatpak
           flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
           # amd64
-          bash ci-build.sh amd64 flatpak
           flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
       - name: checkout gh-pages branch
         uses: actions/checkout@v4

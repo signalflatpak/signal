@@ -1,4 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
+echo "###autobuild.sh###"
+set -x
 
 SIGNAL_VERSION='v7.29.0'
 
@@ -7,20 +9,25 @@ usage() {
 	echo "Options:"
 	echo " -b - fetch beta build. Optional."
 	echo " -p - push to git repo. Optional."
+	echo " -f - Flatpak. Optional."
 	echo " -h - display this help text."
 	echo ""
 }
 
 PUSH='false'
 BETA='false'
+FLATPAK='false'
 
-while getopts 'pbh' OPTION; do
+while getopts 'pbfh' OPTION; do
 	case "$OPTION" in
 		p)
 			PUSH='true'
 			;;
 		b)
 			BETA='true'
+			;;
+		f)
+			FLATPAK='true'
 			;;
 		h)
 			usage
@@ -35,7 +42,12 @@ done
 
 
 deps(){
-	dep_packages="jq curl"
+	if [[ ! -z "$(which flatpak-node-generator)" ]]; then
+		dep_packages="jq curl flatpak-builder git"
+	else
+		dep_packages="jq curl"
+	fi
+
 	sudo apt -qq install $dep_packages
 }
 
@@ -48,7 +60,7 @@ if [[ "$BETA" == "true" ]];then
 fi
 
 # determine if a build needs to be done at all
-if [[ "$latest_ver" == "$SIGNAL_VERSION" ]];then
+if [[ "$latest_ver" == "$SIGNAL_VERSION" ]] && [[ "$FLATPAK" == "false" ]];then
 	exit 0
 else
 	sed -e "s/$SIGNAL_VERSION/$latest_ver/" -i $0
@@ -65,12 +77,20 @@ echo "V $version Branch $branch"
 
 sleep 3
 
-node_version=$(curl -s https://raw.githubusercontent.com/signalapp/Signal-Desktop/${branch}/package.json | jq -r .engines.node)
-if [ ! "$(cat Dockerfile | grep NODE_VERSION= | sed 's/.*v//')" == "$node_version" ]; then
-    sed -i "s:ENV NODE_VERSION=.*:ENV NODE_VERSION=v${node_version}:" Dockerfile
+# run flatpak-node-generator
+if [[ ! -z "$(which flatpak-node-generator)" ]]; then
+	git clone https://github.com/signalapp/Signal-Desktop.git -b $branch
+	cd Signal-Desktop
+	flatpak-node-generator npm package-lock.json
+	cp generated-sources.json ../
+	cd ../
+	rm -rf Signal-Desktop
 fi
-# replace the clone line in Dockerfile with the new branch
-sed -e "s,RUN git clone https://github.com/signalapp/Signal-Desktop.*$,RUN git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i Dockerfile
+
+if [[ "$FLATPAK" == "true" ]]; then
+	exit
+fi
+
 # replace the VERSION variable in the CI manifests
 sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .github/workflows/build.yml
 dt=$(date +%Y-%m-%d)
