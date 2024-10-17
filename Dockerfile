@@ -8,7 +8,7 @@ RUN gem install fpm
 ENV USE_SYSTEM_FPM=true
 
 # Clone signal
-RUN git clone https://github.com/signalapp/Signal-Desktop -b 7.28.x
+RUN git clone https://github.com/signalapp/Signal-Desktop -b 7.29.x
 
 # Sometimes crashes due to upstream running out of git-lfs download credit
 RUN git clone https://github.com/signalapp/better-sqlite3.git || true
