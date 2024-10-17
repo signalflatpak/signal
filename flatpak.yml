@@ -73,8 +73,12 @@ modules:
       - rm -rf ts/test-mock
       - |
         npm install --offline
-        sed -i 's/!deps\/sqlcipher.tar.gz/..\/..\/..\/sqlcipher.tar.gz/' node_modules/@signalapp/better-sqlite3/package.json
-        npm install --offline
+        ls -al /run/build/signal-desktop/flatpak-node/npm-cache
+        find /run/build/signal-desktop/flatpak-node/ -type d -name 'better-sqlite3'
+        ls -al /run/build/signal-desktop/flatpak-node/cache
+        ls -al node_modules
+        ls -al node_modules/@signalapp
+        ls -al node_modules/@signalapp/better-sqlite3
       - npm run generate
       - npm run build:release --$ARCHSPECIFICVARIABLESHORT --linux --dir
       - npm run build:release --$ARCHSPECIFICVARIABLESHORT --linux --deb
