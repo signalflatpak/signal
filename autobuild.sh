@@ -66,11 +66,10 @@ echo "V $version Branch $branch"
 sleep 3
 
 node_version=$(curl -s https://raw.githubusercontent.com/signalapp/Signal-Desktop/${branch}/package.json | jq -r .engines.node)
-if [ ! "$(cat Dockerfile | grep NODE_VERSION= | sed 's/.*v//')" == "$node_version" ]; then
-    sed -i "s:ENV NODE_VERSION=.*:ENV NODE_VERSION=v${node_version}:" Dockerfile
+if [ ! "$(cat ci-build.sh | grep NODE_VERSION= | sed 's/.*v//')" == "$node_version" ]; then
+    sed -i "s:ENV NODE_VERSION=.*:ENV NODE_VERSION=v${node_version}:" ci-build.sh
 fi
-# replace the clone line in Dockerfile with the new branch
-sed -e "s,RUN git clone https://github.com/signalapp/Signal-Desktop.*$,RUN git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i Dockerfile
+sed -e "s,podman exec -it --env=\"\$ENV\" signal-desktop-\"\$VERSION\" git clone https://github.com/signalapp/Signal-Desktop.*$,podman exec -it --env=\"\$ENV\" signal-desktop-\"\$VERSION\" git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i ci-build.sh
 # replace the VERSION variable in the CI manifests
 sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .github/workflows/build.yml
 dt=$(date +%Y-%m-%d)

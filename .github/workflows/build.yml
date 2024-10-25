@@ -152,12 +152,10 @@ jobs:
         shell: bash
         run: |
           # arm64
-          bash ci-build.sh arm64 flatpak
           flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
           flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
           sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
           # amd64
-          bash ci-build.sh amd64 flatpak
           flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
           flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
           sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
@@ -239,10 +237,8 @@ jobs:
         shell: bash
         run: |
           # arm64
-          bash ci-build.sh arm64 flatpak
           flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
           # amd64
-          bash ci-build.sh amd64 flatpak
           flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
       - name: checkout gh-pages branch
         uses: actions/checkout@v4
