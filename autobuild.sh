@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SIGNAL_VERSION='v7.30.0'
+SIGNAL_VERSION='v7.31.0'
 
 usage() {
 	echo ""
@@ -69,7 +69,8 @@ node_version=$(curl -s https://raw.githubusercontent.com/signalapp/Signal-Deskto
 if [ ! "$(cat ci-build.sh | grep NODE_VERSION= | sed 's/.*v//')" == "$node_version" ]; then
     sed -i "s:ENV NODE_VERSION=.*:ENV NODE_VERSION=v${node_version}:" ci-build.sh
 fi
-sed -e "s,podman exec -it --env=\"\$ENV\" signal-desktop-\"\$VERSION\" git clone https://github.com/signalapp/Signal-Desktop.*$,podman exec -it --env=\"\$ENV\" signal-desktop-\"\$VERSION\" git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i ci-build.sh
+sed -e "s,git clone https://github.com/signalapp/Signal-Desktop -b .*,git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i ci-build.sh
+
 # replace the VERSION variable in the CI manifests
 sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .github/workflows/build.yml
 dt=$(date +%Y-%m-%d)
