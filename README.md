@@ -45,7 +45,7 @@ sudo flatpak install --noninteractive --arch=[x86_64/aarch64] flathub org.electr
 
 ```
 bash autobuild.sh
-export VERSION="7.30.0"
+export VERSION="7.31.0"
 bash ci-build.sh [arm64/amd64]
 podman stop signal-desktop-$VERSION
 cp ~/signal-desktop.deb .
