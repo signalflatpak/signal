@@ -1,7 +1,5 @@
 # Signal Desktop Builder
-This project allows building Signal Desktop for Debian 12 on ARM64 and AMD64.
-It is currently a work in progress, with the goal of building a flatpak
-which provides Signal Desktop.
+This project allows building a Flatpak which provides Signal Desktop for ARM64 and AMD64.
 
 This repository is a fork of [undef1/signal-desktop-builder](https://gitlab.com/undef1/signal-desktop-builder)
 
@@ -9,19 +7,17 @@ This repository is a fork of [undef1/signal-desktop-builder](https://gitlab.com/
 
 For directions on installing the flatpak, seek [here](https://signalflatpak.github.io/signal).
 
-## Installing via .deb or .flatpak bundle
+## Installing via .flatpak bundle
 
-- This repo provides .deb and .flatpak binaries as release artifacts [here](https://github.com/signalflatpak/signal/releases)
+- This repo provides .flatpak binaries as release artifacts [here](https://github.com/signalflatpak/signal/releases)
 - The upstream repo provides .deb binaries [here](https://gitlab.com/undef1/signal-desktop-builder/-/packages) for some releases.
 
 # Building this yourself
 
-First: look at `autobuild.sh` - this script will pull the latest signal and node versions and replace the version number in various required files.
-
 Github actions runs the following files:
 
 - `.github/workflows/version_check.yml` is run daily to check for an updated upstream tag. If a new version is found, then a few files have a version variable replaced, the changes are committed, and a tag is pushed, and this triggers the second action.
-- `.github/workflows/build.yml` creates a release, builds the .deb binaries, builds the flatpak bundle files, and builds the flatpak repo. The flatpak repo folder is pushed to the github pages branch of this repo, creating an auto updating flatpak repository.
+- `.github/workflows/build.yml` creates a release, builds the Flatpak bundle files, and builds the Flatpak repo. The Flatpak repo folder is pushed to the github pages branch of this repo, creating an auto updating Flatpak repository.
 
 To build by hand, you will need a Debian-based server.
 
@@ -36,23 +32,6 @@ sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub
 ```
 sudo flatpak install --noninteractive --arch=[x86_64/aarch64] flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
 ```
-
-## Running Build Scripts
-
-`autobuild.sh` will pull the latest signal and node versions and replace the version number in various required files. 
-
-`ci-build.sh` builds signal in an AMD or ARM docker container and copies the .deb out.
-
-```
-bash autobuild.sh
-export VERSION="7.31.0"
-bash ci-build.sh [arm64/amd64]
-podman stop signal-desktop-$VERSION
-cp ~/signal-desktop.deb .
-```
-If cross-compiling, the build can take over an hour on a powerful machine.
-
-If you just want the .deb, you now have it. Congrats.
 
 ## Building a Flatpak
 
@@ -86,12 +65,19 @@ pub   rsa4096/FBEF43DC8C6BE9A7 2022-06-04 [SC]
              |-- ^ this ID ---|
 ```
 
-Build the flatpak:
+Build the Flatpak:
 
 ```
-bash ci-build.sh [arm64/amd64] flatpak
-flatpak-builder --arch=[x86_64/aarch64] --gpg-sign=<Key ID> --repo=./repodir --force-clean ./builddir flatpak.yml
+git clone https://github.com/signalflatpak/signal.git
+cd signal
+bash autobuild.sh
+export VERSION="7.31.0"
+bash ci-build.sh [arm64/amd64]
+mv ~/Signal-Desktop_[arm64/amd64] Signal-Desktop_[arm64/amd64]
+flatpak-builder --arch=[x86_64/aarch64] --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
 ```
+
+If cross-compiling, the build can take over an hour on a powerful machine.
 
 Now you have your `.flatpakrepo` file and your `./repodir`. You can put those on a web server and tell people about them, or use them yourself.
 

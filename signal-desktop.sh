@@ -1,6 +1,6 @@
 #!/bin/bash
 
-EXTRA_ARGS=()
+EXTRA_ARGS=("--ozone-platform-hint=auto")
 
 declare -i SIGNAL_USE_TRAY_ICON="${SIGNAL_USE_TRAY_ICON:-0}"
 declare -i SIGNAL_START_IN_TRAY="${SIGNAL_START_IN_TRAY:-0}"
