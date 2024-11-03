@@ -12,7 +12,28 @@ on:
         #  - master
         #  - testing
   workflow_dispatch:
+    inputs:
+      arch:
+        type: choice
+        description: Architecture
+        options:
+        - both
+        - x86_64
+        - aarch64
 jobs:
+  pre-run:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    name: workflow_dispatch pre-run info
+    steps:
+      - name: workflow_dispatch pre-run info
+        run: |
+          echo "event name ${{ github.event_name }}"
+          echo "arch ${{ github.event.inputs.arch }}"
+          echo "logic aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}"
+          echo "logic x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}"
+
+
   a-publish-release:
     if: startsWith(github.ref, 'refs/tags/')
     #runs-on: self-hosted
@@ -57,21 +78,30 @@ jobs:
         shell: bash
         env:
           VERSION: "7.31.0"
+          build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
+          build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
+
         run: |
           # amd64
           set -x
-          echo "Version is: $VERSION"
-          bash ci-build.sh amd64
-          podman stop signal-desktop-$VERSION
-          podman rm signal-desktop-$VERSION
-          mv ~/Signal-Desktop_amd64 Signal-Desktop_amd64
+          if [[ "$build_x86_64" == "true" ]];then
+            echo "build x86_64"
+            echo "Version is: $VERSION"
+            bash ci-build.sh amd64
+            podman stop signal-desktop-$VERSION
+            podman rm signal-desktop-$VERSION
+            mv ~/Signal-Desktop_amd64 Signal-Desktop_amd64
+          fi
           # arm64
           set -x
-          echo "Version is: $VERSION"
-          bash ci-build.sh arm64
-          podman stop signal-desktop-$VERSION
-          podman rm signal-desktop-$VERSION
-          mv ~/Signal-Desktop_arm64 Signal-Desktop_arm64
+          if [[ "$build_aarch64" == "true" ]];then
+            echo "build aarch64"
+            echo "Version is: $VERSION"
+            bash ci-build.sh arm64
+            podman stop signal-desktop-$VERSION
+            podman rm signal-desktop-$VERSION
+            mv ~/Signal-Desktop_arm64 Signal-Desktop_arm64
+          fi
       - name: install flatpak deps
         shell: bash
         env:
@@ -86,26 +116,35 @@ jobs:
           sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
       - name: build flatpaks
         shell: bash
+        env:
+          build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
+          build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
         run: |
           # amd64
-          flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-          flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
-          sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
+          if [[ "$build_x86_64" == "true" ]];then
+            flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+            flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
+            sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
+          fi
           # arm64
-          flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-          flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
-          sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
+          if [[ "$build_aarch64" == "true" ]];then
+            flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+            flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
+            sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
+          fi
       - name: Upload checksums.txt
         uses: actions/upload-artifact@v4
         with:
           path: checksums.txt
           name: checksums.txt
       - name: Upload amd64 flatpak
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
         uses: actions/upload-artifact@v4
         with:
           path: signal_amd64.flatpak
           name: signal_amd64.flatpak
       - name: Upload arm64 flatpak
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
         uses: actions/upload-artifact@v4
         with:
           path: signal_arm64.flatpak
