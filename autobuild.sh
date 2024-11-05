@@ -66,8 +66,10 @@ echo "V $version Branch $branch"
 sleep 3
 
 node_version=$(curl -s https://raw.githubusercontent.com/signalapp/Signal-Desktop/${branch}/package.json | jq -r .engines.node)
-if [ ! "$(cat ci-build.sh | grep NODE_VERSION= | sed 's/.*v//')" == "$node_version" ]; then
-    sed -i "s:NODE_VERSION=.*:NODE_VERSION=v${node_version}:" ci-build.sh
+node_version_ci_build=$(grep NODE_VERSION= ci-build.sh | sed 's/.*v//')
+
+if [ ! "${node_version_ci_build}" == "${node_version}" ]; then
+    sed -i "s/${node_version_ci_build}/${node_version}/g" ci-build.sh
 fi
 sed -e "s,git clone https://github.com/signalapp/Signal-Desktop -b .*,git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i ci-build.sh
 
