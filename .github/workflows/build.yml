@@ -77,7 +77,7 @@ jobs:
       - name: build dirs
         shell: bash
         env:
-          VERSION: "7.31.0"
+          VERSION: "7.32.0"
           build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
           build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
 
@@ -150,77 +150,25 @@ jobs:
           path: signal_arm64.flatpak
           name: signal_arm64.flatpak
 
-  c-publish-flatpaks:
-    if: startsWith(github.ref, 'refs/tags/')
-    needs:
-      - a-publish-release
-      - b-build-flatpaks
-    #runs-on: self-hosted
-    runs-on: ubuntu-24.04
-    name: 'publish flatpaks'
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4
-      - name: Set env.BRANCH
-        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
-      - name: download release artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-      - name: install secrets
-        shell: bash
-        env:
-          GPG_KEY: ${{secrets.GPG_KEY}}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -qq -y gpg openssh-client
-          echo "$GPG_KEY" | gpg --import
-      - name: move artifacts to current dir
-        shell: bash
-        run: |
-          # checking if checksums are downloaded
-          ls -alh artifacts/
-          mv artifacts/*/* .
-          ls -alh *.flatpak
-          ls -alh checksums.txt
+      # Publish
       - name: Upload release artifacts
+        if: startsWith(github.ref, 'refs/tags/')
         env:
-          VERSION: "7.31.0"
+          VERSION: "7.32.0"
         uses: AButler/upload-release-assets@v3.0
         with:
           release-tag: ${{ env.VERSION }}
           files: "signal_amd64.flatpak;signal_arm64.flatpak;checksums.txt"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: install deps
-        shell: bash
-        run: |
-          sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
-      - name: install flatpak deps
-        shell: bash
-        env:
-          CI_USER: runner
-        run: |
-          sudo rm -rf /opt/pakrepo/
-          sudo mkdir -p /opt/pakrepo
-          sudo chown "$USER" /opt/pakrepo
-          sudo flatpak update --noninteractive -y
-          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
-          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
-      - name: build flatpaks
-        shell: bash
-        run: |
-          # amd64
-          flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-          # arm64
-          flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
       - name: checkout gh-pages branch
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/checkout@v4
         with:
           ref: 1a2b9404b5f768018b3bb2894f6b22da69c6f27c
       - name: sync to gh-pages branch repo dir and commit
+        if: startsWith(github.ref, 'refs/tags/')
         env:
-          VERSION: "7.31.0"
+          VERSION: "7.32.0"
         shell: bash
         run: |
           rsync -a --delete /opt/pakrepo/ ./repo/
