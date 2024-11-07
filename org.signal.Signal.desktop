@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Signal
-Exec=signal-desktop.sh %U
+Exec=signal-desktop %U
 Terminal=false
 Type=Application
 Icon=org.signal.Signal
