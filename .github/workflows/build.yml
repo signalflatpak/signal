@@ -73,35 +73,7 @@ jobs:
       - name: install deps
         shell: bash
         run: |
-          sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
-      - name: build dirs
-        shell: bash
-        env:
-          VERSION: "7.32.0"
-          build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
-          build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
-
-        run: |
-          # amd64
-          set -x
-          if [[ "$build_x86_64" == "true" ]];then
-            echo "build x86_64"
-            echo "Version is: $VERSION"
-            bash ci-build.sh amd64
-            podman stop signal-desktop-$VERSION
-            podman rm signal-desktop-$VERSION
-            mv ~/Signal-Desktop_amd64 Signal-Desktop_amd64
-          fi
-          # arm64
-          set -x
-          if [[ "$build_aarch64" == "true" ]];then
-            echo "build aarch64"
-            echo "Version is: $VERSION"
-            bash ci-build.sh arm64
-            podman stop signal-desktop-$VERSION
-            podman rm signal-desktop-$VERSION
-            mv ~/Signal-Desktop_arm64 Signal-Desktop_arm64
-          fi
+          sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
       - name: install flatpak deps
         shell: bash
         env:
@@ -112,8 +84,22 @@ jobs:
           sudo chown "$USER" /opt/pakrepo
           sudo flatpak update --noninteractive -y
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
-          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
+          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.node20//24.08 -y
+          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.node20//24.08 -y
+      - name: setup flatpaks
+        env:
+          BRANCH: "7.32.x"
+        shell: bash
+        run: |
+          git clone https://github.com/flatpak/flatpak-builder-tools.git
+          cd flatpak-builder-tools/node
+          pipx install .
+          cd ../../
+          export PATH=/opt/pipx_bin:$PATH
+          git clone https://github.com/signalapp/Signal-Desktop.git -b $BRANCH
+          cd Signal-Desktop
+          flatpak-node-generator npm package-lock.json
+          cp generated-sources.json ../
       - name: build flatpaks
         shell: bash
         env:

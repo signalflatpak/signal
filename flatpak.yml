@@ -4,6 +4,8 @@ base-version: '24.08'
 runtime: org.freedesktop.Platform
 runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.node20
 command: signal-desktop
 separate-locales: false
 rename-icon: signal-desktop
@@ -42,6 +44,9 @@ modules:
   - name: signal-desktop
     buildsystem: simple
     build-options:
+      build-args:
+        - "--share=network"
+      append-path: /usr/lib/sdk/node20/bin
       arch:
         x86_64:
           env:
@@ -49,7 +54,28 @@ modules:
         aarch64:
           env:
             ARCHSPECIFICVARIABLESHORT: arm64
+      env:
+        XDG_CACHE_HOME: /run/build/signal-desktop/flatpak-node/cache
+        npm_config_cache: /run/build/signal-desktop/flatpak-node/npm-cache
+        npm_config_nodedir: /usr/lib/sdk/node20
+        # npm_config_offline: 'true'
     build-commands:
+      - git-lfs install
+      - git config --global user.name name
+      - git config --global user.email name@example.com
+      - |
+        npm config set cache ${npm_config_cache}
+      # - |
+      #   npm config set offline true
+      - |
+        sed -i -e 's/"node": "20.*"/"node": "20"/' package.json
+      - |
+        sed -i -e 's/        "deb"/        "dir"/' package.json
+      - sed -r '/mock/d' -i package.json
+      - npm install --offline
+      - rm -rf ts/test-mock
+      - npm run generate
+      - npm run build:release --$ARCHSPECIFICVARIABLESHORT --linux
       - install -Dm0755 signal-desktop.sh "${FLATPAK_DEST}/bin/signal-desktop"
       - install -Dm0644 "org.signal.Signal.metainfo.xml" "${FLATPAK_DEST}/share/metainfo/org.signal.Signal.metainfo.xml"
       - install -Dm0644 "org.signal.Signal.desktop" "${FLATPAK_DEST}/share/applications/org.signal.Signal.desktop"
@@ -60,14 +86,10 @@ modules:
           install -Dm0644 "build/icons/png/${size}x${size}.png" "${FLATPAK_DEST}/share/icons/hicolor/${size}x${size}/apps/signal-desktop.png"
         done
     sources:
-      - type: dir
-        path: Signal-Desktop_amd64
-        only-arches:
-          - x86_64
-      - type: dir
-        path: Signal-Desktop_arm64
-        only-arches:
-          - aarch64
+      - generated-sources.json
+      - type: git
+        url: https://github.com/signalapp/Signal-Desktop.git
+        tag: 7.32.x
       - type: file
         path: signal-desktop.sh
       - type: file
