@@ -31,6 +31,8 @@ podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-deskt
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" sed -r '/mock/d' -i package.json
 # https://github.com/signalapp/ringrtc/issues/59 added 7.33 2024-11-14
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" sed -e 's,"@signalapp/ringrtc": ".*","@signalapp/ringrtc": "2.48.4",' -i package.json
+# https://github.com/signalapp/Signal-Desktop/issues/7086 added 7.34 2024-11-24
+podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" sed -e 's,"electron": ".*","electron": "31.3.1",' -i package.json
 # Dry run
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" npm install --non-interactive
 podman exec -it --env="PATH=/opt/node/bin:$PATH"
