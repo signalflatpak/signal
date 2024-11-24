@@ -30,6 +30,8 @@ podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-deskt
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" sed -i -e 's/        "deb"/        "dir"/' package.json
 # The mock tests are broken on custom arm builds
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" sed -r '/mock/d' -i package.json
+# https://github.com/signalapp/Signal-Desktop/issues/7086 added 7.34 2024-11-24
+podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" sed -e 's,"electron": ".*","electron": "31.3.1",' -i package.json
 # Dry run
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" npm install -g pnpm
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" npm install -g cross-env
