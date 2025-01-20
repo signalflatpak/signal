@@ -51,23 +51,29 @@ modules:
             ARCHSPECIFICVARIABLESHORT: arm64
     build-commands:
       - install -Dm0755 signal-desktop.sh "${FLATPAK_DEST}/bin/signal-desktop"
-      - install -Dm0644 "org.signal.Signal.metainfo.xml" "${FLATPAK_DEST}/share/metainfo/org.signal.Signal.metainfo.xml"
-      - install -Dm0644 "org.signal.Signal.desktop" "${FLATPAK_DEST}/share/applications/org.signal.Signal.desktop"
+      - install -Dm0644 "${FLATPAK_ID}.metainfo.xml" "${FLATPAK_DEST}/share/metainfo/${FLATPAK_ID}.metainfo.xml"
+      - |
+        bsdtar -Oxf signal-desktop.deb 'data.tar.xz' |
+          bsdtar -xf - \
+            --exclude='./usr/share/doc'
+      - mv opt/* "${FLATPAK_DEST}"
+      - install -Dm0644 "usr/share/applications/signal-desktop.desktop" "${FLATPAK_DEST}/share/applications/signal-desktop.desktop"
+      - desktop-file-edit --set-key=Exec --set-value='signal-desktop %U' "${FLATPAK_DEST}/share/applications/signal-desktop.desktop"
       - if [[ $ARCHSPECIFICVARIABLESHORT == arm64 ]]; then mv release/linux-arm64-unpacked ${FLATPAK_DEST}/Signal; else mv release/linux-unpacked ${FLATPAK_DEST}/Signal; fi
       - chmod +x ${FLATPAK_DEST}/Signal/signal-desktop
       - |
         for size in 16 24 32 48 64 128 256 512; do
-          install -Dm0644 "build/icons/png/${size}x${size}.png" "${FLATPAK_DEST}/share/icons/hicolor/${size}x${size}/apps/signal-desktop.png"
+          install -Dm0644 "usr/share/icons/hicolor/${size}x${size}/apps/signal-desktop.png" "${FLATPAK_DEST}/share/icons/hicolor/${size}x${size}/apps/signal-desktop.png"
         done
+      - desktop-file-edit --set-key=Icon --set-value="signal-desktop" "${FLATPAK_DEST}/share/applications/signal-desktop.desktop"
+      - desktop-file-edit --set-key=X-Purism-FormFactor --set-value="Workstation;Mobile;" "${FLATPAK_DEST}/share/applications/signal-desktop.desktop"
     sources:
-      - type: dir
-        path: Signal-Desktop_amd64
+      - type: file
+        dest-filename: signal-desktop.deb
+        url: https://updates.signal.org/desktop/apt-adhoc/pool/s/signal-desktop-adhoc-20250116-9bec59b70/signal-desktop-adhoc-20250116-9bec59b70_7.41.0-adhoc.20250116.16-9bec59b70_amd64.deb
+        sha256: 094a236cf8e1e138575e42fdf766bb98c2a3fb06a8e70249dffac6048c278dd8
         only-arches:
           - x86_64
-      - type: dir
-        path: Signal-Desktop_arm64
-        only-arches:
-          - aarch64
       - type: file
         path: signal-desktop.sh
       - type: file
