@@ -74,34 +74,6 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
-      - name: build dirs
-        shell: bash
-        env:
-          VERSION: "7.39.0"
-          build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
-          build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
-
-        run: |
-          # amd64
-          set -x
-          if [[ "$build_x86_64" == "true" ]];then
-            echo "build x86_64"
-            echo "Version is: $VERSION"
-            bash ci-build.sh amd64
-            podman stop signal-desktop-$VERSION
-            podman rm signal-desktop-$VERSION
-            mv ~/Signal-Desktop_amd64 Signal-Desktop_amd64
-          fi
-          # arm64
-          set -x
-          if [[ "$build_aarch64" == "true" ]];then
-            echo "build aarch64"
-            echo "Version is: $VERSION"
-            bash ci-build.sh arm64
-            podman stop signal-desktop-$VERSION
-            podman rm signal-desktop-$VERSION
-            mv ~/Signal-Desktop_arm64 Signal-Desktop_arm64
-          fi
       - name: install flatpak deps
         shell: bash
         env:
@@ -123,13 +95,13 @@ jobs:
           # amd64
           if [[ "$build_x86_64" == "true" ]];then
             flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-            flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
+            flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal.adhoc20250124197660a96 master
             sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
           fi
           # arm64
           if [[ "$build_aarch64" == "true" ]];then
             flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-            flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
+            flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal.adhoc20250124197660a96 master
             sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
           fi
       - name: Upload checksums.txt

@@ -1,4 +1,4 @@
-id: org.signal.Signal
+id: org.signal.Signal.adhoc20250124197660a96
 base: org.electronjs.Electron2.BaseApp
 base-version: '24.08'
 runtime: org.freedesktop.Platform
@@ -52,22 +52,23 @@ modules:
     build-commands:
       - install -Dm0755 signal-desktop.sh "${FLATPAK_DEST}/bin/signal-desktop"
       - install -Dm0644 "org.signal.Signal.metainfo.xml" "${FLATPAK_DEST}/share/metainfo/org.signal.Signal.metainfo.xml"
-      - install -Dm0644 "org.signal.Signal.desktop" "${FLATPAK_DEST}/share/applications/org.signal.Signal.desktop"
-      - if [[ $ARCHSPECIFICVARIABLESHORT == arm64 ]]; then mv release/linux-arm64-unpacked ${FLATPAK_DEST}/Signal; else mv release/linux-unpacked ${FLATPAK_DEST}/Signal; fi
-      - chmod +x ${FLATPAK_DEST}/Signal/signal-desktop
+      - install -Dm0644 "org.signal.Signal.desktop" "${FLATPAK_DEST}/share/applications/org.signal.Signal.adhoc20250124197660a96.desktop"
+      - |
+        bsdtar -Oxf signal-desktop.deb 'data.tar.xz' |
+          bsdtar -xf - \
+            --exclude='./usr/share/doc'
+      - mv "opt/Signal Adhoc 20250124.197660a96" "${FLATPAK_DEST}/Signal"
       - |
         for size in 16 24 32 48 64 128 256 512; do
-          install -Dm0644 "build/icons/png/${size}x${size}.png" "${FLATPAK_DEST}/share/icons/hicolor/${size}x${size}/apps/signal-desktop.png"
+          install -Dm0644 "usr/share/icons/hicolor/${size}x${size}/apps/signal-desktop-adhoc-20250124-197660a96.png" "${FLATPAK_DEST}/share/icons/hicolor/${size}x${size}/apps/signal-desktop.png"
         done
     sources:
-      - type: dir
-        path: Signal-Desktop_amd64
+      - type: file
+        dest-filename: signal-desktop.deb
+        url: https://updates.signal.org/desktop/apt-adhoc/pool/s/signal-desktop-adhoc-20250124-197660a96/signal-desktop-adhoc-20250124-197660a96_7.42.0-adhoc.20250124.14-197660a96_amd64.deb
+        sha256: 836d3a7987a849504fc1c4fd566ed4011063d77a656712f175089714c15be6d4
         only-arches:
           - x86_64
-      - type: dir
-        path: Signal-Desktop_arm64
-        only-arches:
-          - aarch64
       - type: file
         path: signal-desktop.sh
       - type: file
