@@ -1,4 +1,4 @@
-name: check for new version
+name: run autobuild.sh
 on:
   schedule:
     - cron: '0 0 * * *'
@@ -6,13 +6,13 @@ on:
 jobs:
   autobuild-sh:
     runs-on: ubuntu-latest
-    name: 'check for release'
+    name: run autobuild.sh
     steps:
       - name: checkout code
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.OTHER_TOKEN }}
-      - name: install deps
+      - name: run autobuild.sh
         shell: bash
         run: |
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
