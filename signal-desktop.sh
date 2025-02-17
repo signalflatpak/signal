@@ -1,6 +1,6 @@
 #!/bin/bash
 
-EXTRA_ARGS=()
+EXTRA_ARGS=("--ozone-platform-hint=auto")
 
 declare -i SIGNAL_DISABLE_GPU="${SIGNAL_DISABLE_GPU:-0}"
 declare -i SIGNAL_DISABLE_GPU_SANDBOX="${SIGNAL_DISABLE_GPU_SANDBOX:-0}"
