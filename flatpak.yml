@@ -53,6 +53,7 @@ modules:
       - install -Dm0755 signal-desktop.sh "${FLATPAK_DEST}/bin/signal-desktop"
       - install -Dm0644 "org.signal.Signal.metainfo.xml" "${FLATPAK_DEST}/share/metainfo/org.signal.Signal.metainfo.xml"
       - install -Dm0644 "org.signal.Signal.desktop" "${FLATPAK_DEST}/share/applications/org.signal.Signal.desktop"
+      - ls -alh release/
       - if [[ $ARCHSPECIFICVARIABLESHORT == arm64 ]]; then mv release/linux-arm64-unpacked ${FLATPAK_DEST}/Signal; else mv release/linux-unpacked ${FLATPAK_DEST}/Signal; fi
       - chmod +x ${FLATPAK_DEST}/Signal/signal-desktop
       - |
