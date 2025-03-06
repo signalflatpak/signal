@@ -95,7 +95,6 @@ jobs:
         with:
           path: builddir-arm64.tar.gz
           name: builddir-arm64
-          retention-days: 1
 
   b-build-dir-amd64:
     #runs-on: self-hosted
@@ -138,7 +137,6 @@ jobs:
         with:
           path: builddir-amd64.tar.gz
           name: builddir-amd64
-          retention-days: 1
 
   b-build-flatpaks:
     #runs-on: self-hosted
