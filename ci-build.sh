@@ -31,9 +31,9 @@ podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-deskt
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" sed -r '/mock/d' -i package.json
 # Dry run
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" npm install -g pnpm
-podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" npm install --non-interactive
+podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm install --non-interactive
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" rm -rf ts/test-mock
-podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" npm run generate
-podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" npm run build:release --"$ARCHSPECIFICVARIABLESHORT" --linux
+podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm run generate
+podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm run build:release --"$ARCHSPECIFICVARIABLESHORT" --linux
 
 podman cp signal-desktop-"$VERSION":/Signal-Desktop ~/Signal-Desktop_"$ARCHSPECIFICVARIABLECOMMON"
