@@ -170,11 +170,11 @@ jobs:
         with:
           path: /tmp/
           name: builddir-amd64
-      - name: install deps
+      - name: install system package deps
         shell: bash
         run: |
           sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static unzip
-      - name: build dirs
+      - name: extract artifact downloads
         shell: bash
         env:
           VERSION: "7.45.0"
