@@ -36,6 +36,9 @@ podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-deskt
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm install
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" rm -rf ts/test-mock
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm run generate
+# sticker creator
+podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop/sticker-creator signal-desktop-"$VERSION" pnpm install
+podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop/sticker-creator signal-desktop-"$VERSION" pnpm run build
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm run build:release --"$ARCHSPECIFICVARIABLESHORT" --linux
 
 podman cp signal-desktop-"$VERSION":/Signal-Desktop ~/Signal-Desktop_"$ARCHSPECIFICVARIABLECOMMON"
