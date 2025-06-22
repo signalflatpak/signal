@@ -2,6 +2,14 @@
 
 EXTRA_ARGS=("--ozone-platform-hint=auto")
 
+PAGESIZE=$(getconf PAGESIZE)
+
+if [[ "$PAGESIZE" == "16384" ]];then
+    EXTRA_ARGS+=(
+	'--js-flags="--no-decommit-pooled-pages"'
+    )
+fi
+
 declare -i SIGNAL_DISABLE_GPU="${SIGNAL_DISABLE_GPU:-0}"
 declare -i SIGNAL_DISABLE_GPU_SANDBOX="${SIGNAL_DISABLE_GPU_SANDBOX:-0}"
 
