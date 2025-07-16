@@ -12,7 +12,7 @@ if [ "$1" == "arm64" ]; then
 	ARCHSPECIFICVARIABLESHORT="arm64"
 fi
 
-NODE_VERSION=v22.15.0
+NODE_VERSION=v
 
 shopt -s localvar_inherit
 podman create --name=signal-desktop-"$VERSION" --arch "$ARCHSPECIFICVARIABLECOMMON" -it debian:bookworm bash

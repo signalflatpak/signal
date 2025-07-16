@@ -74,7 +74,7 @@ jobs:
       - name: build arm64 dir
         shell: bash
         env:
-          VERSION: "7.61.0"
+          VERSION: ""
           build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
         run: |
           # arm64
@@ -116,7 +116,7 @@ jobs:
       - name: build x86_64 dir
         shell: bash
         env:
-          VERSION: "7.61.0"
+          VERSION: ""
           build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
         run: |
           # arm64
@@ -177,7 +177,7 @@ jobs:
       - name: extract artifact downloads
         shell: bash
         env:
-          VERSION: "7.61.0"
+          VERSION: ""
           build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
           build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
         run: |
@@ -245,7 +245,7 @@ jobs:
       - name: Upload release artifacts
         if: startsWith(github.ref, 'refs/tags/')
         env:
-          VERSION: "7.61.0"
+          VERSION: ""
         uses: AButler/upload-release-assets@v3.0
         with:
           release-tag: ${{ env.VERSION }}
@@ -259,7 +259,7 @@ jobs:
       - name: sync to gh-pages branch repo dir and commit
         if: startsWith(github.ref, 'refs/tags/')
         env:
-          VERSION: "7.61.0"
+          VERSION: ""
         shell: bash
         run: |
           rsync -a --delete /opt/pakrepo/ ./repo/
