@@ -66,6 +66,11 @@ echo "V $version Branch $branch"
 sleep 3
 
 node_version=$(curl -s https://raw.githubusercontent.com/signalapp/Signal-Desktop/${branch}/package.json | jq -r .engines.node)
+
+if [[ "$node_version" == "" ]];then
+    echo "Could not get node version?"
+    exit 1
+fi
 node_version_ci_build=$(grep NODE_VERSION= ci-build.sh | sed 's/.*v//')
 
 if [ ! "${node_version_ci_build}" == "${node_version}" ]; then
