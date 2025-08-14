@@ -19,8 +19,6 @@ Github actions runs the following files:
 - `.github/workflows/version_check.yml` is run daily to check for an updated upstream tag. If a new version is found, then a few files have a version variable replaced, the changes are committed, and a tag is pushed, and this triggers the second action.
 - `.github/workflows/build.yml` creates a release, builds the Flatpak bundle files, and builds the Flatpak repo. The Flatpak repo folder is pushed to the github pages branch of this repo, creating an auto updating Flatpak repository.
 
-To build by hand, you will need a Debian-based server.
-
 ## Installing dependencies
 
 This needs to be done every time on CI, but only once on a self-hosted system. You can use docker instead of podman but will need to modify the scripts or set aliases yourself.
@@ -71,9 +69,12 @@ Build the Flatpak:
 git clone https://github.com/signalflatpak/signal.git
 cd signal
 bash autobuild.sh
-export VERSION="7.66.0"
-bash ci-build.sh [arm64/amd64]
-mv ~/Signal-Desktop_[arm64/amd64] Signal-Desktop_[arm64/amd64]
+export BRANCH="7.66.0"
+git clone https://github.com/signalapp/Signal-Desktop.git -b $BRANCH
+cd Signal-Desktop
+flatpak-node-generator npm package-lock.json
+cp generated-sources.json ../
+cd ../
 flatpak-builder --arch=[x86_64/aarch64] --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
 ```
 

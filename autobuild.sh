@@ -65,24 +65,11 @@ echo "V $version Branch $branch"
 
 sleep 3
 
-node_version=$(curl -s https://raw.githubusercontent.com/signalapp/Signal-Desktop/${branch}/package.json | jq -r .engines.node)
-
-if [[ "$node_version" == "" ]];then
-    echo "Could not get node version?"
-    exit 1
-fi
-node_version_ci_build=$(grep NODE_VERSION= ci-build.sh | sed 's/.*v//')
-
-if [ ! "${node_version_ci_build}" == "${node_version}" ]; then
-    sed -i "s/${node_version_ci_build}/${node_version}/g" ci-build.sh
-fi
-sed -e "s,git clone https://github.com/signalapp/Signal-Desktop -b .*,git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i ci-build.sh
-
-# replace the VERSION variable in the CI manifests
-sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .github/workflows/build.yml
-dt=$(date +%Y-%m-%d)
-sed -e "s,<release version.*,<release version=\"${latest_ver:1}\" date=\"$dt\"/>," -i org.signal.Signal.metainfo.xml
-sed -e "s,export VERSION=.*$,export VERSION=\"$version\"," -i README.md
+sed -i "s/$SIGNAL_BRANCH/$latest_branch/" flatpak.yml
+sed -i "s/$SIGNAL_BRANCH/$latest_branch/" .github/workflows/build.yml
+sed -i "s/$SIGNAL_VERSION/$latest_version/g" .github/workflows/build.yml
+sed -i "s/release version.*/release version=\"$latest_version\" date=\"$(date +%Y-%m-%d)\"\/>/" org.signal.Signal.metainfo.xml
+sed -i "s/$SIGNAL_BRANCH/$latest_branch/" README.md
 
 commit(){
 	git commit -am "Autobuild for $version,branch $branch"
