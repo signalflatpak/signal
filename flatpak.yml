@@ -5,7 +5,7 @@ runtime: org.freedesktop.Platform
 runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.node22
+  - org.freedesktop.Sdk.Extension.node20
 command: signal-desktop
 separate-locales: false
 rename-icon: signal-desktop
@@ -40,7 +40,7 @@ finish-args:
   - --env=SIGNAL_DISABLE_GPU_SANDBOX=0
   - --env=XCURSOR_PATH=/run/host/user-share/icons:/run/host/share/icons
 build-options:
-  append-path: /usr/lib/sdk/node22/bin
+  append-path: /usr/lib/sdk/node20/bin
   env:
     NPM_CONFIG_LOGLEVEL: info
 
@@ -67,7 +67,7 @@ modules:
       - git config --global user.email name@example.com
       # Install npm dependencies
       - |
-        sed -i -e 's/"node": "22.*"/"node": "22"/' package.json
+        sed -i -e 's/"node": "20.*"/"node": "20"/' package.json
       - |
         sed -i -e 's/        "deb"/        "dir"/' package.json
       - sed -r '/mock/d' -i package.json
@@ -89,7 +89,7 @@ modules:
       - generated-sources.json
       - type: git
         url: https://github.com/signalapp/Signal-Desktop.git
-        tag: 7.66.x
+        tag: 7.44.x
       - type: file
         path: signal-desktop.sh
       - type: file

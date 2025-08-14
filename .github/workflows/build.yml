@@ -84,11 +84,11 @@ jobs:
           sudo chown "$USER" /opt/pakrepo
           sudo flatpak update --noninteractive -y
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.node22//24.08 -y
-          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.node22//24.08 -y
+          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.node20//24.08 -y
+          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.node20//24.08 -y
       - name: setup flatpaks
         env:
-          BRANCH: "7.66.x"
+          BRANCH: "7.44.x"
         shell: bash
         run: |
           git clone https://github.com/flatpak/flatpak-builder-tools.git
@@ -98,13 +98,13 @@ jobs:
           export PATH=/opt/pipx_bin:$PATH
           git clone https://github.com/signalapp/Signal-Desktop.git -b $BRANCH
           cd Signal-Desktop
-          NODE_VERSION=v22.15.0
+          NODE_VERSION=v20.18.1
           wget -q https://nodejs.org/dist/"$NODE_VERSION"/node-"$NODE_VERSION"-linux-x64.tar.gz
           tar xf node-"$NODE_VERSION"-linux-x64.tar.gz
           mv node-"$NODE_VERSION"-linux-x64 node
           PATH=$PWD/node/bin:$PATH
-          npm install -g pnpm-lock-to-npm-lock
-          pnpm-lock-to-npm-lock pnpm-lock.yaml
+          # npm install -g pnpm-lock-to-npm-lock
+          # pnpm-lock-to-npm-lock pnpm-lock.yaml
           flatpak-node-generator npm package-lock.json
           cp generated-sources.json ../
       - name: build flatpaks
@@ -147,7 +147,7 @@ jobs:
       - name: Upload release artifacts
         if: startsWith(github.ref, 'refs/tags/')
         env:
-          VERSION: "7.66.0"
+          VERSION: "7.44.0"
         uses: AButler/upload-release-assets@v3.0
         with:
           release-tag: ${{ env.VERSION }}
@@ -161,7 +161,7 @@ jobs:
       - name: sync to gh-pages branch repo dir and commit
         if: startsWith(github.ref, 'refs/tags/')
         env:
-          VERSION: "7.66.0"
+          VERSION: "7.44.0"
         shell: bash
         run: |
           rsync -a --delete /opt/pakrepo/ ./repo/

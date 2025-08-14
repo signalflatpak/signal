@@ -69,7 +69,7 @@ Build the Flatpak:
 git clone https://github.com/signalflatpak/signal.git
 cd signal
 bash autobuild.sh
-export BRANCH="7.66.0"
+export BRANCH="7.44.0"
 git clone https://github.com/signalapp/Signal-Desktop.git -b $BRANCH
 cd Signal-Desktop
 flatpak-node-generator npm package-lock.json
