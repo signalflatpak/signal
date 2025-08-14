@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SIGNAL_VERSION='v7.65.0'
+SIGNAL_VERSION='v7.66.0'
 
 usage() {
 	echo ""
