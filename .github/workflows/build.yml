@@ -203,8 +203,11 @@ jobs:
           sudo chown "$USER" /opt/pakrepo
           sudo flatpak update --noninteractive -y
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
-          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
+          sudo flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+          sudo flatpak install --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//24.08 -y
+          sudo flatpak install --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//24.08 -y
+          sudo flatpak install --noninteractive --arch=aarch64 flathub-beta org.freedesktop.Platform//25.08beta org.freedesktop.Sdk//25.08beta -y
+          sudo flatpak install --noninteractive --arch=x86_64 flathub-beta org.freedesktop.Platform//25.08beta org.freedesktop.Sdk//25.08beta -y
       - name: build flatpaks
         shell: bash
         env:
