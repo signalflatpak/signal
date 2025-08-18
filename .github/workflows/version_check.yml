@@ -9,7 +9,7 @@ jobs:
     name: run autobuild.sh
     steps:
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.OTHER_TOKEN }}
       - name: run autobuild.sh
