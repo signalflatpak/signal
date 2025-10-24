@@ -76,7 +76,7 @@ node_version_ci_build=$(grep NODE_VERSION= ci-build.sh | sed 's/.*v//')
 if [ ! "${node_version_ci_build}" == "${node_version}" ]; then
     sed -i "s/${node_version_ci_build}/${node_version}/g" ci-build.sh
 fi
-sed -e "s,git clone https://github.com/signalapp/Signal-Desktop -b .*,git clone https://github.com/signalapp/Signal-Desktop -b $branch," -i ci-build.sh
+sed -e "s,git clone -q https://github.com/signalapp/Signal-Desktop -b .*,git clone -q https://github.com/signalapp/Signal-Desktop -b $branch," -i ci-build.sh
 
 # replace the VERSION variable in the CI manifests
 sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .github/workflows/build.yml
