@@ -203,8 +203,8 @@ jobs:
           sudo chown "$USER" /opt/pakrepo
           sudo flatpak update --noninteractive -y
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install -y --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//25.08 org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08
-          sudo flatpak install -y --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//25.08 org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08
+          # sudo flatpak install -y --noninteractive --arch=aarch64 flathub org.electronjs.Electron2.BaseApp//25.08 org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08
+          # sudo flatpak install -y --noninteractive --arch=x86_64 flathub org.electronjs.Electron2.BaseApp//25.08 org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08
       - name: build flatpaks
         shell: bash
         env:
@@ -213,13 +213,13 @@ jobs:
         run: |
           # amd64
           if [[ "$build_x86_64" == "true" ]];then
-            flatpak-builder --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+            flatpak-builder --install-deps-from=flathub --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
             flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
             sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
           fi
           # arm64
           if [[ "$build_aarch64" == "true" ]];then
-            flatpak-builder --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+            flatpak-builder --install-deps-from=flathub --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
             flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
             sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
           fi
