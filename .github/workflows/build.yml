@@ -61,6 +61,8 @@ jobs:
     steps:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
+      - name: cleanup
+        uses: signalflatpak/signal/.github/workflows/cleanup.yaml@master
       - name: install secrets
         shell: bash
         env:
@@ -103,6 +105,8 @@ jobs:
     steps:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
+      - name: cleanup
+        uses: signalflatpak/signal/.github/workflows/cleanup.yaml@master
       - name: install secrets
         shell: bash
         env:
@@ -148,22 +152,8 @@ jobs:
     steps:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
-      - name: cleanup runner
-        run: |
-          df -h .
-          sudo rm -rf /usr/lib/jvm
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/local/.ghcup
-          sudo rm -rf /usr/local/julia*
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/az
-          sudo rm -rf /usr/local/share/powershell
-          sudo rm -rf /opt/hostedtoolcache
-          sudo rm -rf /usr/local/share/chromium
-          sudo rm -rf /opt/microsoft
-          sudo rm -rf /opt/google
-          df -h .
+      - name: cleanup
+        uses: signalflatpak/signal/.github/workflows/cleanup.yaml@master
       - name: install secrets
         shell: bash
         env:
