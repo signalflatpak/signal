@@ -62,7 +62,7 @@ jobs:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: cleanup
-        uses: signalflatpak/signal/.github/workflows/cleanup.yaml@master
+        uses: flatpaks/runner-cleanup@2
       - name: install secrets
         shell: bash
         env:
@@ -106,7 +106,7 @@ jobs:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: cleanup
-        uses: signalflatpak/signal/.github/workflows/cleanup.yaml@master
+        uses: flatpaks/runner-cleanup@2
       - name: install secrets
         shell: bash
         env:
@@ -153,7 +153,7 @@ jobs:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: cleanup
-        uses: signalflatpak/signal/.github/workflows/cleanup.yaml@master
+        uses: flatpaks/runner-cleanup@2
       - name: install secrets
         shell: bash
         env:
