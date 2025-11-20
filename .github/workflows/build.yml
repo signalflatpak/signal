@@ -153,6 +153,7 @@ jobs:
         env:
           GPG_KEY: ${{secrets.GPG_KEY}}
         run: |
+          df -h .
           sudo apt-get update
           sudo apt-get install -qq -y gpg openssh-client
           echo "$GPG_KEY" | gpg --import
@@ -174,6 +175,11 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static unzip
+          sudo rm -rf /opt/pakrepo/
+          sudo mkdir -p /opt/pakrepo
+          sudo chown "$USER" /opt/pakrepo
+          sudo usermod -a -G_flatpak $USER
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
       - name: extract artifact downloads
         shell: bash
         env:
@@ -193,29 +199,20 @@ jobs:
             tar xzf /tmp/builddir-arm64.tar.gz
             ls -alh Signal-Desktop_arm64
           fi
-      - name: install flatpak deps
-        shell: bash
-        env:
-          CI_USER: runner
-        run: |
-          sudo rm -rf /opt/pakrepo/
-          sudo mkdir -p /opt/pakrepo
-          sudo chown "$USER" /opt/pakrepo
-          sudo usermod -a -G_flatpak $USER
-          flatpak update --noninteractive -y
-          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
       - name: build flatpaks
         shell: bash
         env:
           build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
           build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
         run: |
+          df -h .
           # amd64
           if [[ "$build_x86_64" == "true" ]];then
             flatpak-builder --user --install-deps-from=flathub --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
             flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
             sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
           fi
+          df -h .
           # arm64
           if [[ "$build_aarch64" == "true" ]];then
             flatpak-builder --user --install-deps-from=flathub --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
