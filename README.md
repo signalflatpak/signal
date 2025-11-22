@@ -107,3 +107,10 @@ This only exists because some people wanted Signal to work on the Pinephone, and
 
 So no, you can't trust these builds, you can't trust any software or anyone, but I can assure you at least I'm not trying to do anything weird here.
 
+## Warranty / Fitness for Purpose
+
+As with most Free Software there is no warranty. We're not responsible if this flatpak deletes your data or releases the magic smoke from your computer.
+
+## Donations
+
+I'll gladly accept donations but you're of course not obligated. This is a project I use myself and will continue as long as I still use it.
