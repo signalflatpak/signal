@@ -15,7 +15,7 @@ fi
 NODE_VERSION=v22.21.1
 
 shopt -s localvar_inherit
-podman create --name=signal-desktop-"$VERSION" --arch "$ARCHSPECIFICVARIABLECOMMON" -it ghcr.io/signalflatpak/image:latest bash
+podman create --name=signal-desktop-"$VERSION" --arch "$ARCHSPECIFICVARIABLECOMMON" -it ghcr.io/flatpaks/signalimage:latest bash
 #podman create --name=signal-desktop-"$VERSION" --arch "$ARCHSPECIFICVARIABLECOMMON" -it debian:bookworm bash
 podman start signal-desktop-"$VERSION"
 podman exec -it --env="PATH=/opt/node/bin:$PATH" signal-desktop-"$VERSION" apt -qq update
