@@ -12,6 +12,11 @@ assignees: ''
 
 **Screenshots**
 
+**Does this happen on the ofiicial build?**
+
+- [ ] Yes, it also happens on signal's official linux build
+- [ ] No, it is a flatpak specific problem
+- [ ] I have not attempted this
 
 **System Details**
  - Signal version: [e.g. 1.2.3]
