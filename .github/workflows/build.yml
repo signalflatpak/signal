@@ -257,7 +257,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/checkout@v6
         with:
-          ref: 3bfa32a90c7bdd769a0e2235f66bd1aec0310ec3
+          ref: 671da365bc1e7786a1a3c46f25825d3d17ee69f6
       - name: sync to gh-pages branch repo dir and commit
         if: startsWith(github.ref, 'refs/tags/')
         env:
