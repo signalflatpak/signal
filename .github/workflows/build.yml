@@ -13,25 +13,26 @@ on:
         #  - testing
   workflow_dispatch:
     inputs:
-      arch:
-        type: choice
-        description: Architecture
-        options:
-        - both
-        - x86_64
-        - aarch64
+      x86_64:
+        type: boolean
+        default: true
+        description: build x86_64
+      aarch64:
+        type: boolean
+        default: true
+        description: build aarch64
 jobs:
   pre-run:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-24.04
-    name: workflow_dispatch pre-run info
+    name: manual run vars
     steps:
       - name: workflow_dispatch pre-run info
         run: |
           echo "event name ${{ github.event_name }}"
           echo "arch ${{ github.event.inputs.arch }}"
-          echo "logic aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}"
-          echo "logic x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}"
+          echo "logic aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true') }}"
+          echo "logic x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}"
 
 
   publish-release:
@@ -77,7 +78,7 @@ jobs:
         shell: bash
         env:
           VERSION: "7.82.0"
-          build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
+          build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
         run: |
           # arm64
           set -x
@@ -91,7 +92,7 @@ jobs:
             mv ~/signal-arm64.deb .
           fi
       - name: Upload arm64
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
         uses: actions/upload-artifact@v5
         with:
           path: signal-arm64.deb
@@ -120,7 +121,7 @@ jobs:
         shell: bash
         env:
           VERSION: "7.82.0"
-          build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
+          build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
         run: |
           # arm64
           set -x
@@ -134,7 +135,7 @@ jobs:
             mv ~/signal-amd64.deb .
           fi
       - name: Upload x86_64
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
         uses: actions/upload-artifact@v5
         with:
           path: signal-amd64.deb
@@ -164,13 +165,13 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v6
       - name: Download arm64 artifacts
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
         uses: actions/download-artifact@v6
         with:
           path: .
           name: signal-arm64.deb
       - name: Download x86_64 artifacts
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
         uses: actions/download-artifact@v6
         with:
           path: .
@@ -187,8 +188,8 @@ jobs:
       - name: build flatpaks
         shell: bash
         env:
-          build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
-          build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
+          build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
+          build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
         run: |
           ls -alh *deb
           file *.deb
@@ -213,25 +214,25 @@ jobs:
           path: checksums.txt
           name: checksums.txt
       - name: Upload amd64 flatpak
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
         uses: actions/upload-artifact@v5
         with:
           path: signal_amd64.flatpak
           name: signal_amd64.flatpak
       - name: Upload amd64 deb
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
         uses: actions/upload-artifact@v5
         with:
           path: signal-amd64.deb
           name: signal-amd64.deb
       - name: Upload arm64 flatpak
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
         uses: actions/upload-artifact@v5
         with:
           path: signal_arm64.flatpak
           name: signal_arm64.flatpak
       - name: Upload arm64 deb
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
         uses: actions/upload-artifact@v5
         with:
           path: signal-arm64.deb
