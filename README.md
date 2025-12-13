@@ -5,11 +5,11 @@ This repository is a fork of [undef1/signal-desktop-builder](https://gitlab.com/
 
 ## Installing from the flatpak repository
 
-For directions on installing the flatpak, seek [here](https://flatpaks.github.io/signal).
+For directions on installing the flatpak, seek [here](https://signalflatpak.github.io/signal).
 
 ## Installing via .flatpak bundle
 
-- This repo provides .flatpak binaries as release artifacts [here](https://github.com/flatpaks/signal/releases)
+- This repo provides .flatpak binaries as release artifacts [here](https://github.com/signalflatpak/signal/releases)
 - The upstream repo provides .deb binaries [here](https://gitlab.com/undef1/signal-desktop-builder/-/packages) for some releases.
 
 # Building this yourself
@@ -68,7 +68,7 @@ pub   rsa4096/FBEF43DC8C6BE9A7 2022-06-04 [SC]
 Build the Flatpak:
 
 ```
-git clone https://github.com/flatpaks/signal.git
+git clone https://github.com/signalflatpak/signal.git
 cd signal
 bash autobuild.sh
 export VERSION="7.82.0"

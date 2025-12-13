@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e
 
 SIGNAL_VERSION='v7.82.0'
 

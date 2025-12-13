@@ -3,11 +3,6 @@ on:
   schedule:
     - cron: '0 1 * * 6'
   workflow_dispatch:
-    inputs:
-      beta:
-        type: boolean
-        description: beta builds
-        default: false
 jobs:
   autobuild-sh:
     runs-on: ubuntu-latest
@@ -22,7 +17,4 @@ jobs:
         run: |
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
-          if [[ "${{ inputs.beta }}" == "true" ]];then
-            ./autobuild.sh -p -b
-          fi
           ./autobuild.sh -p
