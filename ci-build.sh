@@ -27,7 +27,6 @@ podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /opt/ signal-desktop-"$VERSI
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" git-lfs install
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" git config --global user.name name
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" git config --global user.email name@example.com
-podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" sed -i -e 's/        "deb"/        "dir"/' package.json
 # The mock tests are broken on custom arm builds
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" sed -r '/mock/d' -i package.json
 # Dry run
@@ -40,6 +39,6 @@ podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-deskt
 # sticker creator
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop/sticker-creator signal-desktop-"$VERSION" pnpm install
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop/sticker-creator signal-desktop-"$VERSION" pnpm run build
-podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm run build:release --"$ARCHSPECIFICVARIABLESHORT" --linux
+podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm run build:release --"$ARCHSPECIFICVARIABLESHORT" --linux --deb
 
-podman cp signal-desktop-"$VERSION":/Signal-Desktop ~/Signal-Desktop_"$ARCHSPECIFICVARIABLECOMMON"
+podman cp signal-desktop-"$VERSION":/Signal-Desktop/release/signal-desktop_"$VERSION"_"$ARCHSPECIFICVARIABLECOMMON".deb ~/Signal-Desktop_"$ARCHSPECIFICVARIABLECOMMON".deb
