@@ -50,13 +50,13 @@ jobs:
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: cleanup
         uses: flatpaks/runner-cleanup@2
-      - name: install secrets
+      - name: install dependnecies and secrets
         shell: bash
         env:
           GPG_KEY: ${{secrets.GPG_KEY}}
         run: |
           sudo apt-get update
-          sudo apt-get install -qq -y gpg openssh-client
+          sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
           echo "$GPG_KEY" | gpg --import
       - name: checkout code
         uses: actions/checkout@v6
@@ -64,21 +64,15 @@ jobs:
         shell: bash
         env:
           VERSION: "7.82.0"
-          build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
         run: |
-          # arm64
           set -x
-          if [[ "$build_aarch64" == "true" ]];then
-            sudo apt-get update && sudo apt-get install -qq -y bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
-            echo "build aarch64"
-            echo "Version is: $VERSION"
-            bash ci-build.sh arm64
-            podman stop signal-desktop-$VERSION
-            podman rm signal-desktop-$VERSION
-            mv ~/signal-arm64.deb .
-          fi
+          echo "build aarch64"
+          echo "Version is: $VERSION"
+          bash ci-build.sh arm64
+          podman stop signal-desktop-$VERSION
+          podman rm signal-desktop-$VERSION
+          mv ~/signal-arm64.deb .
       - name: Upload arm64
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
         uses: actions/upload-artifact@v5
         with:
           path: signal-arm64.deb
@@ -99,7 +93,7 @@ jobs:
           GPG_KEY: ${{secrets.GPG_KEY}}
         run: |
           sudo apt-get update
-          sudo apt-get install -qq -y gpg openssh-client
+          sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
           echo "$GPG_KEY" | gpg --import
       - name: checkout code
         uses: actions/checkout@v6
@@ -107,20 +101,15 @@ jobs:
         shell: bash
         env:
           VERSION: "7.82.0"
-          build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
         run: |
           set -x
-          if [[ "$build_x86_64" == "true" ]];then
-            sudo apt-get update && sudo apt-get install -qq -y bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
-            echo "build x86_64"
-            echo "Version is: $VERSION"
-            bash ci-build.sh amd64
-            podman stop signal-desktop-$VERSION
-            podman rm signal-desktop-$VERSION
-            mv ~/signal-amd64.deb .
-          fi
+          echo "build x86_64"
+          echo "Version is: $VERSION"
+          bash ci-build.sh amd64
+          podman stop signal-desktop-$VERSION
+          podman rm signal-desktop-$VERSION
+          mv ~/signal-amd64.deb .
       - name: Upload x86_64
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
         uses: actions/upload-artifact@v5
         with:
           path: signal-amd64.deb
@@ -140,14 +129,14 @@ jobs:
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: cleanup
         uses: flatpaks/runner-cleanup@2
-      - name: install secrets
+      - name: install dependencies and secrets
         shell: bash
         env:
           GPG_KEY: ${{secrets.GPG_KEY}}
         run: |
           df -h .
           sudo apt-get update
-          sudo apt-get install -qq -y gpg openssh-client
+          sudo apt-get install -qq -y gpg openssh-client bash rsync flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static unzip
           echo "$GPG_KEY" | gpg --import
       - name: checkout code
         uses: actions/checkout@v6
@@ -163,10 +152,9 @@ jobs:
         with:
           path: .
           name: signal-amd64.deb
-      - name: install system package deps
+      - name: set up flatpak
         shell: bash
         run: |
-          sudo apt-get update && sudo apt-get install -qq -y bash rsync flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static unzip
           sudo rm -rf /opt/pakrepo/
           sudo mkdir -p /opt/pakrepo
           sudo chown "$USER" /opt/pakrepo
