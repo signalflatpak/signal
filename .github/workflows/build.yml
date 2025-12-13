@@ -53,7 +53,7 @@ jobs:
           name: ${{ github.ref }}
           tag: ${{ github.ref }}
 
-  # build arm64 dir on an arm64 runner, then upload it for use in the flatpak section
+  # build arm64 on an arm64 runner, then upload it for use in the flatpak section
   build-arm64:
     #runs-on: self-hosted
     runs-on: ubuntu-24.04-arm
@@ -90,7 +90,7 @@ jobs:
             podman rm signal-desktop-$VERSION
             mv ~/signal-arm64.deb .
           fi
-      - name: Upload arm64 dir
+      - name: Upload arm64
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
         uses: actions/upload-artifact@v5
         with:
@@ -116,7 +116,7 @@ jobs:
           echo "$GPG_KEY" | gpg --import
       - name: checkout code
         uses: actions/checkout@v6
-      - name: build x86_64 dir
+      - name: build x86_64
         shell: bash
         env:
           VERSION: "7.82.0"
@@ -133,7 +133,7 @@ jobs:
             podman rm signal-desktop-$VERSION
             mv ~/signal-amd64.deb .
           fi
-      - name: Upload x86_64 dir
+      - name: Upload x86_64
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
         uses: actions/upload-artifact@v5
         with:
@@ -167,14 +167,14 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
         uses: actions/download-artifact@v6
         with:
-          path: /tmp/
-          name: builddir-arm64
+          path: .
+          name: signal-arm64.deb
       - name: Download x86_64 artifacts
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
         uses: actions/download-artifact@v6
         with:
-          path: /tmp/
-          name: builddir-amd64
+          path: .
+          name: signal-amd64.deb
       - name: install system package deps
         shell: bash
         run: |
