@@ -79,7 +79,7 @@ jobs:
           podman rm signal-desktop-$VERSION
           mv ~/signal-arm64.deb .
       - name: Upload arm64
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: signal-arm64.deb
           name: signal-arm64.deb
@@ -116,7 +116,7 @@ jobs:
           podman rm signal-desktop-$VERSION
           mv ~/signal-amd64.deb .
       - name: Upload x86_64
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: signal-amd64.deb
           name: signal-amd64.deb
@@ -148,13 +148,13 @@ jobs:
         uses: actions/checkout@v6
       - name: Download arm64 artifacts
         if: ${{ needs.build-arm64.result == 'success' }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: .
           name: signal-arm64.deb
       - name: Download x86_64 artifacts
         if: ${{ needs.build-amd64.result == 'success' }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: .
           name: signal-amd64.deb
@@ -185,19 +185,19 @@ jobs:
           sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
           sha256sum ./signal-arm64.deb | tee -a checksums.txt
       - name: Upload checksums.txt
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: checksums.txt
           name: checksums.txt
       - name: Upload amd64 flatpak
         if: ${{ needs.build-amd64.result == 'success' }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: signal_amd64.flatpak
           name: signal_amd64.flatpak
       - name: Upload arm64 flatpak
         if: ${{ needs.build-arm64.result == 'success' }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: signal_arm64.flatpak
           name: signal_arm64.flatpak
