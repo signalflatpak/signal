@@ -115,6 +115,17 @@ jobs:
           path: signal-amd64.deb
           name: signal-amd64.deb
 
+  check-needs:
+    runs-on: ubuntu-latest
+    name: checkneeds
+    needs:
+      - build-amd64
+      - build-arm64
+    if: always()
+    steps:
+      - name: print
+        run: echo "arm result ${{ needs.build-arm64.result }} amd result ${{ needs.build-amd64.result }}"
+
   # depends on both builds, but in case one was skipped, still run after both are done
   # that's what the weird if statement is for
   build-flatpaks:
