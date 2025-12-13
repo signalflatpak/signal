@@ -197,6 +197,7 @@ jobs:
             flatpak-builder --user --install-deps-from=flathub --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
             flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
             sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
+            sha256sum ./signal-amd64.deb | tee -a checksums.txt
           fi
           df -h .
           # arm64
@@ -204,6 +205,7 @@ jobs:
             flatpak-builder --user --install-deps-from=flathub --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
             flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
             sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
+            sha256sum ./signal-arm64.deb | tee -a checksums.txt
           fi
       - name: Upload checksums.txt
         uses: actions/upload-artifact@v5
@@ -216,12 +218,24 @@ jobs:
         with:
           path: signal_amd64.flatpak
           name: signal_amd64.flatpak
+      - name: Upload amd64 deb
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
+        uses: actions/upload-artifact@v5
+        with:
+          path: signal-amd64.deb
+          name: signal-amd64.deb
       - name: Upload arm64 flatpak
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
         uses: actions/upload-artifact@v5
         with:
           path: signal_arm64.flatpak
           name: signal_arm64.flatpak
+      - name: Upload arm64 deb
+        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
+        uses: actions/upload-artifact@v5
+        with:
+          path: signal-arm64.deb
+          name: signal-arm64.deb
 
       # Publish
       - name: Upload release artifacts
