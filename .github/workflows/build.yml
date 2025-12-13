@@ -22,18 +22,6 @@ on:
         default: true
         description: build aarch64
 jobs:
-  pre-run:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-24.04
-    name: manual run vars
-    steps:
-      - name: workflow_dispatch pre-run info
-        run: |
-          echo "event name ${{ github.event_name }}"
-          echo "arch ${{ github.event.inputs.arch }}"
-          echo "logic aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true') }}"
-          echo "logic x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}"
-
 
   publish-release:
     if: startsWith(github.ref, 'refs/tags/')
