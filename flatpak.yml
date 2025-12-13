@@ -7,7 +7,7 @@ sdk: org.freedesktop.Sdk
 command: signal-desktop
 separate-locales: false
 rename-icon: signal-desktop
-rename-desktop-file: signal-desktop
+rename-desktop-file: signal-desktop.desktop
 finish-args:
   # X11 performance
   - --share=ipc
