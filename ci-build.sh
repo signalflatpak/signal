@@ -24,6 +24,7 @@ podman exec -it --env="PATH=/opt/node/bin:$PATH" signal-desktop-"$VERSION" git c
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /opt/ signal-desktop-"$VERSION" wget -q https://nodejs.org/dist/"$NODE_VERSION"/node-"$NODE_VERSION"-linux-"$ARCHSPECIFICVARIABLESHORT".tar.gz
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /opt/ signal-desktop-"$VERSION" tar xf node-"$NODE_VERSION"-linux-"$ARCHSPECIFICVARIABLESHORT".tar.gz
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /opt/ signal-desktop-"$VERSION"  mv node-"$NODE_VERSION"-linux-"$ARCHSPECIFICVARIABLESHORT" node
+podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /opt/ signal-desktop-"$VERSION" gem install fpm
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" git-lfs install
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" git config --global user.name name
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" git config --global user.email name@example.com
@@ -39,6 +40,6 @@ podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-deskt
 # sticker creator
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop/sticker-creator signal-desktop-"$VERSION" pnpm install
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop/sticker-creator signal-desktop-"$VERSION" pnpm run build
-podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm run build:release --"$ARCHSPECIFICVARIABLESHORT" --linux
+podman exec -it --env="PATH=/opt/node/bin:$PATH" --env="USE_SYSTEM_FPM=true" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm run build:release --"$ARCHSPECIFICVARIABLESHORT" --linux
 
 podman cp signal-desktop-"$VERSION":/Signal-Desktop/release/signal-desktop_"$VERSION"_"$ARCHSPECIFICVARIABLECOMMON".deb ~/signal-"$ARCHSPECIFICVARIABLECOMMON".deb
