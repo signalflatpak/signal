@@ -87,7 +87,7 @@ jobs:
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: cleanup
         uses: flatpaks/runner-cleanup@2
-      - name: install secrets
+      - name: install dependencies and secrets
         shell: bash
         env:
           GPG_KEY: ${{secrets.GPG_KEY}}
@@ -115,17 +115,6 @@ jobs:
           path: signal-amd64.deb
           name: signal-amd64.deb
 
-  check-needs:
-    runs-on: ubuntu-latest
-    name: checkneeds
-    needs:
-      - build-amd64
-      - build-arm64
-    if: always()
-    steps:
-      - name: print
-        run: echo "arm result ${{ needs.build-arm64.result }} amd result ${{ needs.build-amd64.result }}"
-
   # depends on both builds, but in case one was skipped, still run after both are done
   # that's what the weird if statement is for
   build-flatpaks:
@@ -152,13 +141,13 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v6
       - name: Download arm64 artifacts
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
+        if: ${{ needs.build-arm64.result == 'success' }}
         uses: actions/download-artifact@v6
         with:
           path: .
           name: signal-arm64.deb
       - name: Download x86_64 artifacts
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
+        if: ${{ needs.build-amd64.result == 'success' }}
         uses: actions/download-artifact@v6
         with:
           path: .
@@ -171,42 +160,37 @@ jobs:
           sudo chown "$USER" /opt/pakrepo
           sudo usermod -a -G_flatpak $USER
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-      - name: build flatpaks
+      - name: build amd64 flatpak
+        if: ${{ needs.build-amd64.result == 'success' }}
         shell: bash
-        env:
-          build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
-          build_aarch64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
         run: |
-          ls -alh *deb
-          file *.deb
-          # amd64
-          if [[ "$build_x86_64" == "true" ]];then
-            flatpak-builder --user --install-deps-from=flathub --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-            flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
-            sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
-            sha256sum ./signal-amd64.deb | tee -a checksums.txt
-          fi
-          df -h .
-          # arm64
-          if [[ "$build_aarch64" == "true" ]];then
-            flatpak-builder --user --install-deps-from=flathub --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-            flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
-            sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
-            sha256sum ./signal-arm64.deb | tee -a checksums.txt
-          fi
+          df -h
+          flatpak-builder --user --install-deps-from=flathub --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+          flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
+          sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
+          sha256sum ./signal-amd64.deb | tee -a checksums.txt
+      - name: build arm64 flatpak
+        if: ${{ needs.build-arm64.result == 'success' }}
+        shell: bash
+        run: |
+          df -h
+          flatpak-builder --user --install-deps-from=flathub --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+          flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
+          sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
+          sha256sum ./signal-arm64.deb | tee -a checksums.txt
       - name: Upload checksums.txt
         uses: actions/upload-artifact@v5
         with:
           path: checksums.txt
           name: checksums.txt
       - name: Upload amd64 flatpak
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
+        if: ${{ needs.build-amd64.result == 'success' }}
         uses: actions/upload-artifact@v5
         with:
           path: signal_amd64.flatpak
           name: signal_amd64.flatpak
       - name: Upload arm64 flatpak
-        if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
+        if: ${{ needs.build-arm64.result == 'success' }}
         uses: actions/upload-artifact@v5
         with:
           path: signal_arm64.flatpak
