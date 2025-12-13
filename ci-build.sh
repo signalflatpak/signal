@@ -39,6 +39,6 @@ podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-deskt
 # sticker creator
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop/sticker-creator signal-desktop-"$VERSION" pnpm install
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop/sticker-creator signal-desktop-"$VERSION" pnpm run build
-podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm run build:release --"$ARCHSPECIFICVARIABLESHORT" --linux --deb
+podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /Signal-Desktop signal-desktop-"$VERSION" pnpm run build:release --"$ARCHSPECIFICVARIABLESHORT" --linux
 
 podman cp signal-desktop-"$VERSION":/Signal-Desktop/release/signal-desktop_"$VERSION"_"$ARCHSPECIFICVARIABLECOMMON".deb ~/signal-"$ARCHSPECIFICVARIABLECOMMON".deb
