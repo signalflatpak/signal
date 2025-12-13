@@ -94,6 +94,10 @@ So no, you can't trust these builds, you can't trust any software or anyone, but
 
 As with most Free Software there is no warranty. We're not responsible if this flatpak deletes your data or releases the magic smoke from your computer.
 
+## Issues
+
+Issues are turned off. If you have something to contribute you can issue a PR. These builds are provided as-is.
+
 ## Donations
 
 I'll gladly accept donations but you're of course not obligated. This is a project I use myself and will continue as long as I still use it.
