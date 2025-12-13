@@ -43,7 +43,7 @@ jobs:
           allowUpdates: true
           draft: false
           prerelease: false
-          name: ${{ github.ref }}
+          name: ${{ github.ref_name }}
           tag: ${{ github.ref }}
 
   build-arm64:
@@ -187,7 +187,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: AButler/upload-release-assets@v3.0
         with:
-          release-tag: ${{ github.ref }}
+          release-tag: ${{ github.ref_name }}
           files: "signal_amd64.flatpak;signal_arm64.flatpak;signal-amd64.deb;signal-arm64.deb;checksums.txt"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: checkout gh-pages branch
