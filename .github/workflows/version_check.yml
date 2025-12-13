@@ -1,4 +1,4 @@
-name: run autobuild.sh
+name: version check
 on:
   schedule:
     - cron: '0 1 * * 6'
