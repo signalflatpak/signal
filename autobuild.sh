@@ -17,28 +17,12 @@ BETA='false'
 
 while getopts 'pbh' OPTION; do
 	case "$OPTION" in
-		p)
-			PUSH='true'
-			;;
-		b)
-			BETA='true'
-			;;
-		h)
-			usage
-			exit 0
-			;;
-		*)
-			usage
-			exit 1
-			;;
+		p) PUSH='true' ;;
+		b) BETA='true' ;;
+		h) usage; exit 0 ;;
+		*) usage; exit 1 ;;
 	esac
 done
-
-
-deps(){
-	dep_packages="jq curl"
-	sudo apt -qq install $dep_packages
-}
 
 # get latest non-beta release version from github API
 latest_ver=$(curl -s https://api.github.com/repos/signalapp/signal-desktop/releases|jq -r '[.[] | select(.prerelease|not).tag_name][0]')
@@ -72,15 +56,12 @@ if [[ "$node_version" == "" ]];then
     echo "Could not get node version?"
     exit 1
 fi
-node_version_ci_build=$(grep NODE_VERSION= ci-build.sh | sed 's/.*v//')
 
-if [ ! "${node_version_ci_build}" == "${node_version}" ]; then
-    sed -i "s/${node_version_ci_build}/${node_version}/g" ci-build.sh
-fi
-sed -e "s,git clone -q https://github.com/signalapp/Signal-Desktop -b .*,git clone -q https://github.com/signalapp/Signal-Desktop -b $branch," -i ci-build.sh
+sed -i "s/NODE_VERSION: .*/NODE_VERSION: \"v${node_version}\"/" .github/workflows/build.yml
+sed -i "s/SIGNAL_VERSION: .*/SIGNAL_VERSION: \"$version\"/" .github/workflows/build.yml
+sed -i "s/SIGNAL_BRANCH: .*/SIGNAL_BRANCH: \"$branch\"/" .github/workflows/build.yml
 
 # replace the VERSION variable in the CI manifests
-sed -e "s,VERSION: .*$,VERSION: \"$version\"," -i .github/workflows/build.yml
 dt=$(date +%Y-%m-%d)
 sed -e "s,<release version.*,<release version=\"${latest_ver:1}\" date=\"$dt\"/>," -i org.signal.Signal.metainfo.xml
 sed -e "s,export VERSION=.*$,export VERSION=\"$version\"," -i README.md
