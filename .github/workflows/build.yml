@@ -22,10 +22,9 @@ on:
         default: true
         description: build aarch64
 jobs:
-
+  # publish release if this was pushed with a tag
   publish-release:
     if: startsWith(github.ref, 'refs/tags/')
-    #runs-on: self-hosted
     runs-on: ubuntu-24.04
     name: 'publish release'
     steps:
@@ -42,11 +41,10 @@ jobs:
           name: ${{ github.ref }}
           tag: ${{ github.ref }}
 
-  # build arm64 on an arm64 runner, then upload it for use in the flatpak section
   build-arm64:
-    #runs-on: self-hosted
     runs-on: ubuntu-24.04-arm
     name: 'build arm64'
+    if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
     steps:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
@@ -87,9 +85,9 @@ jobs:
           name: signal-arm64.deb
 
   build-amd64:
-    #runs-on: self-hosted
     runs-on: ubuntu-24.04
     name: 'build x86_64'
+    if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
     steps:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
@@ -111,7 +109,6 @@ jobs:
           VERSION: "7.82.0"
           build_x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
         run: |
-          # arm64
           set -x
           if [[ "$build_x86_64" == "true" ]];then
             sudo apt-get update && sudo apt-get install -qq -y bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
@@ -129,13 +126,18 @@ jobs:
           path: signal-amd64.deb
           name: signal-amd64.deb
 
+  # depends on both builds, but in case one was skipped, still run after both are done
+  # that's what the weird if statement is for
   build-flatpaks:
-    #runs-on: self-hosted
     runs-on: ubuntu-24.04
     name: 'build flatpaks'
     needs:
       - build-arm64
       - build-amd64
+    if: |
+      always() &&
+      (needs.build-arm64.result == 'skipped' || needs.arm64.result == 'success') &&
+      (needs.build-amd64.result == 'skipped' || needs.amd64.result == 'success')
     steps:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
