@@ -123,7 +123,7 @@ jobs:
     needs:
       - build-arm64
       - build-amd64
-    if: ${{ true }}
+    if: always() && (needs.build-arm64.result == skipped || needs.build-arm64.result == success) && (needs.build-amd64.result == skipped || needs.build-amd64.result == success)
     steps:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
