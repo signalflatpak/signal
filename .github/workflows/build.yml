@@ -34,11 +34,11 @@ jobs:
           echo "logic x86_64: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}"
 
 
-  a-publish-release:
+  publish-release:
     if: startsWith(github.ref, 'refs/tags/')
     #runs-on: self-hosted
     runs-on: ubuntu-24.04
-    name: '1 publish release'
+    name: 'publish release'
     steps:
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -140,7 +140,7 @@ jobs:
           path: signal-amd64.deb
           name: signal-amd64.deb
 
-  b-build-flatpaks:
+  build-flatpaks:
     #runs-on: self-hosted
     runs-on: ubuntu-24.04
     name: 'build flatpaks'
@@ -245,7 +245,7 @@ jobs:
         uses: AButler/upload-release-assets@v3.0
         with:
           release-tag: ${{ env.VERSION }}
-          files: "signal_amd64.flatpak;signal_arm64.flatpak;checksums.txt"
+          files: "signal_amd64.flatpak;signal_arm64.flatpak;signal-amd64.deb;signal-arm64.deb;checksums.txt"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: checkout gh-pages branch
         if: startsWith(github.ref, 'refs/tags/')
