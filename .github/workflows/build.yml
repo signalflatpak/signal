@@ -35,7 +35,6 @@ jobs:
     name: 'publish release'
     steps:
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: ncipollo/release-action@v1
         id: create_release
         env:
@@ -54,14 +53,11 @@ jobs:
     steps:
       - name: cleanup
         uses: flatpaks/runner-cleanup@2
-      - name: install dependnecies and secrets
+      - name: install dependnecies
         shell: bash
-        env:
-          GPG_KEY: ${{secrets.GPG_KEY}}
         run: |
           sudo apt-get update
           sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
-          echo "$GPG_KEY" | gpg --import
       - name: checkout code
         uses: actions/checkout@v6
       - name: build arm64 deb
@@ -87,14 +83,11 @@ jobs:
     steps:
       - name: cleanup
         uses: flatpaks/runner-cleanup@2
-      - name: install dependencies and secrets
+      - name: install dependencies
         shell: bash
-        env:
-          GPG_KEY: ${{secrets.GPG_KEY}}
         run: |
           sudo apt-get update
           sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
-          echo "$GPG_KEY" | gpg --import
       - name: checkout code
         uses: actions/checkout@v6
       - name: build x86_64
