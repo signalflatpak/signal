@@ -54,10 +54,10 @@ jobs:
           tag: ${{ github.ref }}
 
   # build arm64 dir on an arm64 runner, then upload it for use in the flatpak section
-  b-build-dir-arm64:
+  build-arm64:
     #runs-on: self-hosted
     runs-on: ubuntu-24.04-arm
-    name: 'build dir arm64'
+    name: 'build arm64'
     steps:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
@@ -73,7 +73,7 @@ jobs:
           echo "$GPG_KEY" | gpg --import
       - name: checkout code
         uses: actions/checkout@v6
-      - name: build arm64 dir
+      - name: build arm64 deb
         shell: bash
         env:
           VERSION: "7.82.0"
@@ -88,20 +88,19 @@ jobs:
             bash ci-build.sh arm64
             podman stop signal-desktop-$VERSION
             podman rm signal-desktop-$VERSION
-            mv ~/Signal-Desktop_arm64 Signal-Desktop_arm64
-            tar czf builddir-arm64.tar.gz Signal-Desktop_arm64
+            mv ~/signal-arm64.deb .
           fi
       - name: Upload arm64 dir
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
         uses: actions/upload-artifact@v5
         with:
-          path: builddir-arm64.tar.gz
-          name: builddir-arm64
+          path: signal-arm64.deb
+          name: signal-arm64.deb
 
-  b-build-dir-amd64:
+  build-amd64:
     #runs-on: self-hosted
     runs-on: ubuntu-24.04
-    name: 'build dir x86_64'
+    name: 'build x86_64'
     steps:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
@@ -132,23 +131,22 @@ jobs:
             bash ci-build.sh amd64
             podman stop signal-desktop-$VERSION
             podman rm signal-desktop-$VERSION
-            mv ~/Signal-Desktop_amd64 Signal-Desktop_amd64
-            tar czf builddir-amd64.tar.gz Signal-Desktop_amd64
+            mv ~/signal-amd64.deb .
           fi
       - name: Upload x86_64 dir
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
         uses: actions/upload-artifact@v5
         with:
-          path: builddir-amd64.tar.gz
-          name: builddir-amd64
+          path: signal-amd64.deb
+          name: signal-amd64.deb
 
   b-build-flatpaks:
     #runs-on: self-hosted
     runs-on: ubuntu-24.04
     name: 'build flatpaks'
     needs:
-      - b-build-dir-arm64
-      - b-build-dir-amd64
+      - build-arm64
+      - build-amd64
     steps:
       - name: Set env.BRANCH
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
