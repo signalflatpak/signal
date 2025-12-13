@@ -7,6 +7,7 @@ sdk: org.freedesktop.Sdk
 command: signal-desktop
 separate-locales: false
 rename-icon: signal-desktop
+rename-desktop-file: signal-desktop.desktop
 finish-args:
   # X11 performance
   - --share=ipc
@@ -41,37 +42,34 @@ finish-args:
 modules:
   - name: signal-desktop
     buildsystem: simple
-    build-options:
-      arch:
-        x86_64:
-          env:
-            ARCHSPECIFICVARIABLESHORT: x64
-        aarch64:
-          env:
-            ARCHSPECIFICVARIABLESHORT: arm64
     build-commands:
       - install -Dm0755 signal-desktop.sh "${FLATPAK_DEST}/bin/signal-desktop"
-      - install -Dm0644 "org.signal.Signal.metainfo.xml" "${FLATPAK_DEST}/share/metainfo/org.signal.Signal.metainfo.xml"
-      - install -Dm0644 "org.signal.Signal.desktop" "${FLATPAK_DEST}/share/applications/org.signal.Signal.desktop"
       - ls -alh
-      - if [[ $ARCHSPECIFICVARIABLESHORT == arm64 ]]; then mv release/linux-arm64-unpacked ${FLATPAK_DEST}/Signal; else mv release/linux-unpacked ${FLATPAK_DEST}/Signal; fi
-      - chmod +x ${FLATPAK_DEST}/Signal/signal-desktop
+      - |
+        bsdtar -Oxf signal-desktop.deb 'data.tar.xz' |
+          bsdtar -xf - \
+            --exclude='./usr/share/doc'
+      - mv opt/* "${FLATPAK_DEST}"
+      - install -Dm0644 "org.signal.Signal.metainfo.xml" "${FLATPAK_DEST}/share/metainfo/org.signal.Signal.metainfo.xml"
+      - install -Dm0644 "usr/share/applications/signal-desktop.desktop" "${FLATPAK_DEST}/share/applications/signal-desktop.desktop"
       - |
         for size in 16 24 32 48 64 128 256 512; do
-          install -Dm0644 "build/icons/png/${size}x${size}.png" "${FLATPAK_DEST}/share/icons/hicolor/${size}x${size}/apps/signal-desktop.png"
+          install -Dm0644 "usr/share/icons/hicolor/${size}x${size}/apps/signal-desktop.png" "${FLATPAK_DEST}/share/icons/hicolor/${size}x${size}/apps/signal-desktop.png"
         done
+      - desktop-file-edit --set-key=Exec --set-value='signal-desktop %U' "${FLATPAK_DEST}/share/applications/signal-desktop.desktop"
+      - desktop-file-edit --set-key=X-Purism-FormFactor --set-value="Workstation;Mobile;" "${FLATPAK_DEST}/share/applications/signal-desktop.desktop"
     sources:
-      - type: dir
-        path: Signal-Desktop_amd64
+      - type: file
+        path: signal-amd64.deb
+        dest-filename: signal-desktop.deb
         only-arches:
           - x86_64
-      - type: dir
-        path: Signal-Desktop_arm64
+      - type: file
+        path: signal-arm64.deb
+        dest-filename: signal-desktop.deb
         only-arches:
           - aarch64
       - type: file
         path: signal-desktop.sh
       - type: file
         path: org.signal.Signal.metainfo.xml
-      - type: file
-        path: org.signal.Signal.desktop
