@@ -1,25 +1,37 @@
-# Signal Desktop Flatpak and .deb builds, from source, for arm64 and x86_64
+# Signal Desktop Builder
+This project allows building a Flatpak which provides Signal Desktop for ARM64 and AMD64.
 
-This repository is a descended from [undef1/signal-desktop-builder](https://gitlab.com/undef1/signal-desktop-builder), credit where it's due.
+This repository is a fork of [undef1/signal-desktop-builder](https://gitlab.com/undef1/signal-desktop-builder)
 
 ## Installing from the flatpak repository
 
 For directions on installing the flatpak, seek [here](https://flatpaks.github.io/signal).
 
-## Installing via .flatpak bundle or .deb file
+## Installing via .flatpak bundle
 
 - This repo provides .flatpak binaries as release artifacts [here](https://github.com/flatpaks/signal/releases)
-- This repo provides .deb binaries as release artifacts [here](https://github.com/flatpaks/signal/releases)
 - The upstream repo provides .deb binaries [here](https://gitlab.com/undef1/signal-desktop-builder/-/packages) for some releases.
 
 # Building this yourself
 
-Brief overview:
+Github actions runs the following files:
 
-- autobuild.sh finds the latest version of signalapp/signal-desktop from github's api. It modifies the .github/workflows/build.yml file and pushes a tag to this repo.
-- .github/workflows/build.yml invokes the ci-build.sh script and flatpak-builder to produce a deb and bundle it into a flatpak binary.
-- the flatpak repo dir is pushed to github pages.
+- `.github/workflows/version_check.yml` is run daily to check for an updated upstream tag. If a new version is found, then a few files have a version variable replaced, the changes are committed, and a tag is pushed, and this triggers the second action.
+- `.github/workflows/build.yml` creates a release, builds the Flatpak bundle files, and builds the Flatpak repo. The Flatpak repo folder is pushed to the github pages branch of this repo, creating an auto updating Flatpak repository.
 
+To build by hand, you will need a Debian-based server.
+
+## Installing dependencies
+
+This needs to be done every time on CI, but only once on a self-hosted system. You can use docker instead of podman but will need to modify the scripts or set aliases yourself.
+
+```
+sudo apt install -qq bash rsync podman flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static
+sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+```
+```
+sudo flatpak install --noninteractive --arch=[x86_64/aarch64] flathub org.electronjs.Electron2.BaseApp//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 -y
+```
 
 ## Building a Flatpak
 
@@ -59,12 +71,17 @@ Build the Flatpak:
 git clone https://github.com/flatpaks/signal.git
 cd signal
 bash autobuild.sh
-bash ci-build.sh -a [amd64/arm64] -n NODE_VERSION -v SIGNAL_VERSION -b BRANCH
-mv ~/signal-[arm64/amd64].deb .
+export VERSION="7.82.0"
+bash ci-build.sh [arm64/amd64]
+mv ~/Signal-Desktop_[arm64/amd64] Signal-Desktop_[arm64/amd64]
 flatpak-builder --arch=[x86_64/aarch64] --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
 ```
 
-`.flatpakrepo` and your `./repodir` can be served over http.
+If cross-compiling, the build can take over an hour on a powerful machine.
+
+Now you have your `.flatpakrepo` file and your `./repodir`. You can put those on a web server and tell people about them, or use them yourself.
+
+If you just want to build a standalone .flatpak bundle that you can install anywhere, instead of building a repo:
 
 `flatpak build-bundle --arch=[x86_64/aarch64] ./repodir ./signal.flatpak org.signal.Signal master`
 
@@ -94,11 +111,6 @@ So no, you can't trust these builds, you can't trust any software or anyone, but
 
 As with most Free Software there is no warranty. We're not responsible if this flatpak deletes your data or releases the magic smoke from your computer.
 
-## Issues are turned off
-
-If you have something to contribute you can issue a PR. The discussions feature also exists and you can use that.
-
 ## Donations
 
 I'll gladly accept donations but you're of course not obligated. This is a project I use myself and will continue as long as I still use it.
-
