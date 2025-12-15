@@ -93,7 +93,7 @@ jobs:
           fi
       - name: Upload arm64 dir
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: builddir-arm64.tar.gz
           name: builddir-arm64
@@ -137,7 +137,7 @@ jobs:
           fi
       - name: Upload x86_64 dir
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: builddir-amd64.tar.gz
           name: builddir-amd64
@@ -226,19 +226,19 @@ jobs:
             sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
           fi
       - name: Upload checksums.txt
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: checksums.txt
           name: checksums.txt
       - name: Upload amd64 flatpak
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'x86_64' ) ) }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: signal_amd64.flatpak
           name: signal_amd64.flatpak
       - name: Upload arm64 flatpak
         if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && ( github.event.inputs.arch == 'both' || github.event.inputs.arch == 'aarch64' ) ) }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: signal_arm64.flatpak
           name: signal_arm64.flatpak
