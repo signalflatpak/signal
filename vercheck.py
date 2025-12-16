@@ -6,9 +6,13 @@ import sys
 import time
 import subprocess
 
-SIGNAL_VERSION = 'v7.80.0'
+SIGNAL_VERSION = 'v7.82.0'
 
 parser = argparse.ArgumentParser()
+parser.add_argument("-b",
+                    "--beta",
+                    help="Check for beta builds",
+                    action="store_true")
 parser.add_argument("-p",
                     "--push",
                     help="Push to git repo",
@@ -16,7 +20,7 @@ parser.add_argument("-p",
 args = parser.parse_args()
 
 
-def get_signal_version():
+def get_signal_version(beta=False):
     # get latest version of signal from github api
     conn = http.client.HTTPSConnection('api.github.com')
     # user agent is required for github api
@@ -24,13 +28,23 @@ def get_signal_version():
         "Accept": "application/json",
         "User-Agent": "flatpak-autobuilder"
     }
-    conn.request('GET',
-                 '/repos/signalapp/signal-desktop/releases/latest',
-                 headers=headers)
-    response = conn.getresponse()
-    jr = json.loads(response.read().decode("utf-8"))
+    json_data=None
+    if beta:
+        conn.request('GET',
+                     '/repos/signalapp/signal-desktop/releases',
+                     headers=headers)
+        response = conn.getresponse()
+        jr = json.loads(response.read().decode("utf-8"))
+        json_data=jr[0]
+    else:
+        conn.request('GET',
+                     '/repos/signalapp/signal-desktop/releases/latest',
+                     headers=headers)
+        response = conn.getresponse()
+        jr = json.loads(response.read().decode("utf-8"))
+        json_data=jr
     conn.close()
-    new_ver = jr.get('tag_name')
+    new_ver = json_data.get('tag_name')
     if SIGNAL_VERSION == new_ver:
         print("no new version")
         #sys.exit(0)
@@ -66,8 +80,9 @@ def node_check(branch):
 
 
 def main():
-    version, branch = get_signal_version()
+    version, branch = get_signal_version(args.beta)
     node_ver = node_check(branch)
+    print("signal:", version, branch)
     print("node:", node_ver)
 
 
