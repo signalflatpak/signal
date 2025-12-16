@@ -5,6 +5,7 @@ import json
 import sys
 import time
 import subprocess
+import datetime
 
 SIGNAL_VERSION = 'v7.82.0'
 
@@ -28,21 +29,21 @@ def get_signal_version(beta=False):
         "Accept": "application/json",
         "User-Agent": "flatpak-autobuilder"
     }
-    json_data=None
+    json_data = None
     if beta:
         conn.request('GET',
                      '/repos/signalapp/signal-desktop/releases',
                      headers=headers)
         response = conn.getresponse()
         jr = json.loads(response.read().decode("utf-8"))
-        json_data=jr[0]
+        json_data = jr[0]
     else:
         conn.request('GET',
                      '/repos/signalapp/signal-desktop/releases/latest',
                      headers=headers)
         response = conn.getresponse()
         jr = json.loads(response.read().decode("utf-8"))
-        json_data=jr
+        json_data = jr
     conn.close()
     new_ver = json_data.get('tag_name')
     if SIGNAL_VERSION == new_ver:
@@ -79,11 +80,37 @@ def node_check(branch):
     return node_ver
 
 
+def update_files(signal_version, branch, node_version):
+    now = datetime.datetime.now()
+    timestr = now.isoformat().split("T")[0]
+    exprs = [
+        f"sed -i 's/NODE_VERSION: .*/NODE_VERSION: \"v{node_version}\"/' .github/workflows/build.yml",
+        f"sed -i 's/SIGNAL_VERSION: .*/SIGNAL_VERSION: \"{signal_version}\"/' .github/workflows/build.yml",
+        f"sed -i 's/SIGNAL_BRANCH: .*/SIGNAL_BRANCH: \"{branch}\"/' .github/workflows/build.yml"
+        f"sed -e 's,<release version.*,<release version=\"{signal_version}\" date=\"{timestr}\"/>,' -i org.signal.Signal.metainfo.xml"
+    ]
+
+    for expr in exprs:
+        print(expr)
+
+
+def commit(version, branch):
+	status='git status | grep "nothing to commit, working tree clean"'
+    exprs = [
+            f'git commit -am "Autobuild {version} {branch}"',
+            f'git tag {version}',
+            'git push -f --tags'
+    ]
+
+
 def main():
     version, branch = get_signal_version(args.beta)
     node_ver = node_check(branch)
     print("signal:", version, branch)
     print("node:", node_ver)
+    update_files(version, branch, node_ver)
+    if args.push:
+        commit()
 
 
 if __name__ == "__main__":
