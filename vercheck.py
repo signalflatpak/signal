@@ -96,11 +96,15 @@ def update_files(signal_version, branch, node_version):
 
 def commit(version, branch):
 	status='git status | grep "nothing to commit, working tree clean"'
-    exprs = [
-            f'git commit -am "Autobuild {version} {branch}"',
-            f'git tag {version}',
-            'git push -f --tags'
-    ]
+    r=subprocess.run(status, shell=True)
+    if r.returncode>0:
+        exprs = [
+                f'git commit -am "Autobuild {version} {branch}"',
+                f'git tag {version}',
+                'git push -f --tags'
+        ]
+        for expr in exprs:
+            subprocess.run(expr, shell=True)
 
 
 def main():
@@ -110,7 +114,7 @@ def main():
     print("node:", node_ver)
     update_files(version, branch, node_ver)
     if args.push:
-        commit()
+        commit(version, branch)
 
 
 if __name__ == "__main__":
