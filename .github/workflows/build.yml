@@ -155,6 +155,12 @@ jobs:
           flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
           sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
           sha256sum ./signal-amd64.deb | tee -a checksums.txt
+      - name: Upload amd64 flatpak
+        if: ${{ needs.build-amd64.result == 'success' }}
+        uses: actions/upload-artifact@v6
+        with:
+          path: signal_amd64.flatpak
+          name: signal_amd64.flatpak
       - name: build arm64 flatpak
         if: ${{ needs.build-arm64.result == 'success' }}
         shell: bash
@@ -164,23 +170,17 @@ jobs:
           flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
           sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
           sha256sum ./signal-arm64.deb | tee -a checksums.txt
-      - name: Upload checksums.txt
-        uses: actions/upload-artifact@v6
-        with:
-          path: checksums.txt
-          name: checksums.txt
-      - name: Upload amd64 flatpak
-        if: ${{ needs.build-amd64.result == 'success' }}
-        uses: actions/upload-artifact@v6
-        with:
-          path: signal_amd64.flatpak
-          name: signal_amd64.flatpak
       - name: Upload arm64 flatpak
         if: ${{ needs.build-arm64.result == 'success' }}
         uses: actions/upload-artifact@v6
         with:
           path: signal_arm64.flatpak
           name: signal_arm64.flatpak
+      - name: Upload checksums.txt
+        uses: actions/upload-artifact@v6
+        with:
+          path: checksums.txt
+          name: checksums.txt
 
       # Publish
       - name: Upload release artifacts
