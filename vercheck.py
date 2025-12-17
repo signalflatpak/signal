@@ -7,7 +7,7 @@ import time
 import subprocess
 import datetime
 
-SIGNAL_VERSION = 'vv7.83.0-beta.1'
+SIGNAL_VERSION = 'v7.83.0-beta.1'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-b",
@@ -83,7 +83,7 @@ def update_files(signal_version, branch, node_version):
         f"sed -i 's/SIGNAL_VERSION: .*/SIGNAL_VERSION: \"{ver}\"/' .github/workflows/build.yml",
         f"sed -i 's/SIGNAL_BRANCH: .*/SIGNAL_BRANCH: \"{branch}\"/' .github/workflows/build.yml",
         f"sed -e 's,<release version.*,<release version=\"{ver}\" date=\"{timestr}\"/>,' -i org.signal.Signal.metainfo.xml",
-        f"sed -e 's/{SIGNAL_VERSION}/v{signal_version}/' -i {sys.argv[0]}"
+        f"sed -e 's/{SIGNAL_VERSION}/{signal_version}/' -i {sys.argv[0]}"
     ]
     for expr in exprs:
         print(expr)
