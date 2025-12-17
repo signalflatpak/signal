@@ -46,13 +46,6 @@ def get_signal_version(beta=False):
         json_data = jr
     conn.close()
     new_ver = json_data.get('tag_name')
-    if SIGNAL_VERSION == new_ver:
-        print("no new version")
-        #sys.exit(0)
-    else:
-        expr = f"sed -e 's/{SIGNAL_VERSION}/{new_ver}/' -i {sys.argv[0]}"
-        print(expr)
-        subprocess.run(expr, shell=True)
 
     version = new_ver[1:]
     v_arr = version.split('.')
@@ -61,7 +54,7 @@ def get_signal_version(beta=False):
     if branch is None or version is None:
         print(f"Bad branch or version: branch '{branch}' version '{version}'")
         sys.exit(1)
-    return version, branch
+    return new_ver, branch
 
 
 def node_check(branch):
@@ -84,11 +77,13 @@ def node_check(branch):
 def update_files(signal_version, branch, node_version):
     now = datetime.datetime.now()
     timestr = now.isoformat().split("T")[0]
+    ver = signal_version[1:]
     exprs = [
         f"sed -i 's/NODE_VERSION: .*/NODE_VERSION: \"v{node_version}\"/' .github/workflows/build.yml",
-        f"sed -i 's/SIGNAL_VERSION: .*/SIGNAL_VERSION: \"{signal_version}\"/' .github/workflows/build.yml",
+        f"sed -i 's/SIGNAL_VERSION: .*/SIGNAL_VERSION: \"{ver}\"/' .github/workflows/build.yml",
         f"sed -i 's/SIGNAL_BRANCH: .*/SIGNAL_BRANCH: \"{branch}\"/' .github/workflows/build.yml",
-        f"sed -e 's,<release version.*,<release version=\"{signal_version}\" date=\"{timestr}\"/>,' -i org.signal.Signal.metainfo.xml"
+        f"sed -e 's,<release version.*,<release version=\"{ver}\" date=\"{timestr}\"/>,' -i org.signal.Signal.metainfo.xml",
+        f"sed -e 's/{SIGNAL_VERSION}/v{signal_version}/' -i {sys.argv[0]}"
     ]
     for expr in exprs:
         print(expr)
@@ -112,6 +107,9 @@ def main():
     node_ver = node_check(branch)
     print("signal:", version, branch)
     print("node:", node_ver)
+    if version == SIGNAL_VERSION:
+        print("no new version")
+        sys.exit(0)
     update_files(version, branch, node_ver)
     if args.push:
         commit(version, branch)
