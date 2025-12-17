@@ -9,7 +9,7 @@ on:
         description: beta builds
         default: false
 jobs:
-  vercheck.py:
+  versioncheck:
     runs-on: ubuntu-latest
     name: run vercheck.py
     steps:
