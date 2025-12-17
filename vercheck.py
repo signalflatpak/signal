@@ -52,6 +52,7 @@ def get_signal_version(beta=False):
     else:
         expr = f"sed -e 's/{SIGNAL_VERSION}/{new_ver}/' -i {sys.argv[0]}"
         print(expr)
+        subprocess.run(expr, shell=True)
 
     version = new_ver[1:]
     v_arr = version.split('.')
@@ -86,22 +87,21 @@ def update_files(signal_version, branch, node_version):
     exprs = [
         f"sed -i 's/NODE_VERSION: .*/NODE_VERSION: \"v{node_version}\"/' .github/workflows/build.yml",
         f"sed -i 's/SIGNAL_VERSION: .*/SIGNAL_VERSION: \"{signal_version}\"/' .github/workflows/build.yml",
-        f"sed -i 's/SIGNAL_BRANCH: .*/SIGNAL_BRANCH: \"{branch}\"/' .github/workflows/build.yml"
+        f"sed -i 's/SIGNAL_BRANCH: .*/SIGNAL_BRANCH: \"{branch}\"/' .github/workflows/build.yml",
         f"sed -e 's,<release version.*,<release version=\"{signal_version}\" date=\"{timestr}\"/>,' -i org.signal.Signal.metainfo.xml"
     ]
-
     for expr in exprs:
         print(expr)
+        subprocess.run(expr, shell=True)
 
 
 def commit(version, branch):
-	status='git status | grep "nothing to commit, working tree clean"'
-    r=subprocess.run(status, shell=True)
-    if r.returncode>0:
+    status = 'git status | grep "nothing to commit, working tree clean"'
+    r = subprocess.run(status, shell=True)
+    if r.returncode > 0:
         exprs = [
-                f'git commit -am "Autobuild {version} {branch}"',
-                f'git tag {version}',
-                'git push -f --tags'
+            f'git commit -am "Autobuild {version} {branch}"',
+            f'git tag {version}', 'git push -f --tags'
         ]
         for expr in exprs:
             subprocess.run(expr, shell=True)
