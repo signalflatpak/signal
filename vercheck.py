@@ -96,7 +96,7 @@ def commit(version, branch):
     if r.returncode > 0:
         exprs = [
             f'git commit -am "Autobuild {version} {branch}"',
-            f'git tag {version}', 'git push -f --tags'
+            f'git tag {version}', 'git push', 'git push -f origin --tags'
         ]
         for expr in exprs:
             subprocess.run(expr, shell=True)
