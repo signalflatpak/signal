@@ -110,7 +110,9 @@ def main():
     if version == SIGNAL_VERSION:
         print("no new version")
         sys.exit(0)
-    print(f"is {version} > {SIGNAL_VERSION}: {version > SIGNAL_VERSION}")
+    print(
+        f"only updating if {version} > {SIGNAL_VERSION}: {version > SIGNAL_VERSION}"
+    )
     if version > SIGNAL_VERSION:
         update_files(version, branch, node_ver)
         if args.push:
