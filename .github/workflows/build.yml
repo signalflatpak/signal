@@ -182,7 +182,7 @@ jobs:
         run: |
           gh repo set-default ${{ github.repository }}
           for file in signal_amd64.flatpak signal_arm64.flatpak signal-amd64.deb signal-arm64.deb checksums.txt; do
-            gh release upload ${{ github.ref_name }} ./$file
+            gh release upload --clobber ${{ github.ref_name }} ./$file
           done
 
       - name: checkout gh-pages branch
