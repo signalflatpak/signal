@@ -71,7 +71,7 @@ Build the Flatpak:
 git clone https://github.com/signalflatpak/signal.git
 cd signal
 bash autobuild.sh
-export VERSION="7.82.0"
+export VERSION="7.83.0"
 bash ci-build.sh [arm64/amd64]
 mv ~/Signal-Desktop_[arm64/amd64] Signal-Desktop_[arm64/amd64]
 flatpak-builder --arch=[x86_64/aarch64] --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
