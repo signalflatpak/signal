@@ -47,9 +47,9 @@ jobs:
       - name: build arm64 deb
         shell: bash
         env:
-          SIGNAL_VERSION: "7.83.0"
+          SIGNAL_VERSION: "7.84.0-beta.2"
           NODE_VERSION: "v22.21.1"
-          SIGNAL_BRANCH: "7.83.x"
+          SIGNAL_BRANCH: "7.84.x"
         run: |
           set -x
           bash ci-build.sh -a arm64 -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
@@ -77,9 +77,9 @@ jobs:
       - name: build x86_64
         shell: bash
         env:
-          SIGNAL_VERSION: "7.83.0"
+          SIGNAL_VERSION: "7.84.0-beta.2"
           NODE_VERSION: "v22.21.1"
-          SIGNAL_BRANCH: "7.83.x"
+          SIGNAL_BRANCH: "7.84.x"
         run: |
           set -x
           bash ci-build.sh -a amd64 -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
