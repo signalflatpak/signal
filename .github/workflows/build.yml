@@ -36,7 +36,8 @@ jobs:
     steps:
       - name: Create Release
         run: |
-          gh release create ${{ github.ref_name }} || exit 0
+          gh repo set-default ${{ github.repository }}
+          gh release create ${{ github.ref_name }} --notes-from-tag --title ${{ github.ref_name }} || exit 0
 
   build-arm64:
     runs-on: ubuntu-24.04-arm
