@@ -34,6 +34,11 @@ jobs:
     runs-on: ubuntu-24.04-arm
     name: 'build arm64'
     if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
+    env:
+      SIGNAL_VERSION: "7.84.0"
+      NODE_VERSION: "v22.21.1"
+      SIGNAL_BRANCH: "7.84.x"
+      ARCH: "arm64"
     steps:
       - name: cleanup
         uses: flatpaks/runner-cleanup@2
@@ -46,24 +51,25 @@ jobs:
         uses: actions/checkout@v6
       - name: build arm64 deb
         shell: bash
-        env:
-          SIGNAL_VERSION: "7.84.0"
-          NODE_VERSION: "v22.21.1"
-          SIGNAL_BRANCH: "7.84.x"
         run: |
           set -x
-          bash ci-build.sh -a arm64 -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
-          mv ~/signal-arm64.deb .
+          bash ci-build.sh -a $ARCH -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
+          mv ~/signal-$ARCH.deb .
       - name: Upload arm64
         uses: actions/upload-artifact@v6
         with:
-          path: signal-arm64.deb
-          name: signal-arm64.deb
+          path: signal-${{ env.ARCH }}.deb
+          name: signal-${{ env.ARCH }}.deb
 
   build-amd64:
     runs-on: ubuntu-24.04
     name: 'build x86_64'
     if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
+    env:
+      SIGNAL_VERSION: "7.84.0"
+      NODE_VERSION: "v22.21.1"
+      SIGNAL_BRANCH: "7.84.x"
+      ARCH: "amd64"
     steps:
       - name: cleanup
         uses: flatpaks/runner-cleanup@2
@@ -76,19 +82,15 @@ jobs:
         uses: actions/checkout@v6
       - name: build x86_64
         shell: bash
-        env:
-          SIGNAL_VERSION: "7.84.0"
-          NODE_VERSION: "v22.21.1"
-          SIGNAL_BRANCH: "7.84.x"
         run: |
           set -x
-          bash ci-build.sh -a amd64 -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
-          mv ~/signal-amd64.deb .
+          bash ci-build.sh -a $ARCH -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
+          mv ~/signal-$ARCH.deb .
       - name: Upload x86_64
         uses: actions/upload-artifact@v6
         with:
-          path: signal-amd64.deb
-          name: signal-amd64.deb
+          path: signal-${{ env.ARCH }}.deb
+          name: signal-${{ env.ARCH }}.deb
 
   # The flatpak build depends on both electron builds, but in case one was
   # skipped, still run after both are done.
