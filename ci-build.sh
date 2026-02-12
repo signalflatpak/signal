@@ -44,11 +44,9 @@ podman_exec /Signal-Desktop git-lfs install
 podman_exec /Signal-Desktop git config --global user.name name
 podman_exec /Signal-Desktop git config --global user.email name@example.com
 
-#podman_exec /Signal-Desktop sed -r '/mock/d' -i package.json
-
 podman_exec /Signal-Desktop npm install -g pnpm cross-env npm-run-all
 podman_exec /Signal-Desktop pnpm install
-podman_exec /Signal-Desktop rm -rf ts/test-mock
+#podman_exec /Signal-Desktop rm -rf ts/test-mock
 podman_exec /Signal-Desktop pnpm run generate
 
 podman_exec /Signal-Desktop/sticker-creator pnpm install
