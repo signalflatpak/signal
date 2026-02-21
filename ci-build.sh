@@ -12,7 +12,7 @@ if [ "$1" == "arm64" ]; then
 	ARCHSPECIFICVARIABLESHORT="arm64"
 fi
 
-NODE_VERSION=v22.21.1
+NODE_VERSION=v24.11.1
 
 shopt -s localvar_inherit
 podman create --name=signal-desktop-"$VERSION" --arch "$ARCHSPECIFICVARIABLECOMMON" -it ghcr.io/signalflatpak/image:latest bash
@@ -20,7 +20,7 @@ podman create --name=signal-desktop-"$VERSION" --arch "$ARCHSPECIFICVARIABLECOMM
 podman start signal-desktop-"$VERSION"
 podman exec -it --env="PATH=/opt/node/bin:$PATH" signal-desktop-"$VERSION" apt -qq update
 #podman exec -it --env="PATH=/opt/node/bin:$PATH" signal-desktop-"$VERSION" apt -qq install -y python3 gcc g++ make build-essential git git-lfs libffi-dev libssl-dev libglib2.0-0 libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libgdk-pixbuf-2.0-0 libgtk-3-0 libdrm2 libgbm1 ruby ruby-dev curl wget clang llvm lld clang-tools generate-ninja ninja-build pkg-config tcl wget libpixman-1-dev libcairo2-dev libpango1.0-dev
-podman exec -it --env="PATH=/opt/node/bin:$PATH" signal-desktop-"$VERSION" git clone -q https://github.com/signalapp/Signal-Desktop -b 7.89.x
+podman exec -it --env="PATH=/opt/node/bin:$PATH" signal-desktop-"$VERSION" git clone -q https://github.com/signalapp/Signal-Desktop -b 7.90.x
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /opt/ signal-desktop-"$VERSION" wget -q https://nodejs.org/dist/"$NODE_VERSION"/node-"$NODE_VERSION"-linux-"$ARCHSPECIFICVARIABLESHORT".tar.gz
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /opt/ signal-desktop-"$VERSION" tar xf node-"$NODE_VERSION"-linux-"$ARCHSPECIFICVARIABLESHORT".tar.gz
 podman exec -it --env="PATH=/opt/node/bin:$PATH" -w /opt/ signal-desktop-"$VERSION"  mv node-"$NODE_VERSION"-linux-"$ARCHSPECIFICVARIABLESHORT" node
