@@ -122,13 +122,13 @@ jobs:
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
       - name: Download arm64 artifacts
         if: ${{ needs.build-arm64.result == 'success' }}
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: .
           name: signal-arm64.deb
       - name: Download x86_64 artifacts
         if: ${{ needs.build-amd64.result == 'success' }}
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: .
           name: signal-amd64.deb
