@@ -56,7 +56,7 @@ jobs:
           bash ci-build.sh -a $ARCH -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
           mv ~/signal-$ARCH.deb .
       - name: Upload arm64
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: signal-${{ env.ARCH }}.deb
           name: signal-${{ env.ARCH }}.deb
@@ -87,7 +87,7 @@ jobs:
           bash ci-build.sh -a $ARCH -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
           mv ~/signal-$ARCH.deb .
       - name: Upload x86_64
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: signal-${{ env.ARCH }}.deb
           name: signal-${{ env.ARCH }}.deb
@@ -143,7 +143,7 @@ jobs:
           sha256sum ./signal-amd64.deb | tee -a checksums.txt
       - name: Upload amd64 flatpak
         if: ${{ needs.build-amd64.result == 'success' }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: signal_amd64.flatpak
           name: signal_amd64.flatpak
@@ -158,12 +158,12 @@ jobs:
           sha256sum ./signal-arm64.deb | tee -a checksums.txt
       - name: Upload arm64 flatpak
         if: ${{ needs.build-arm64.result == 'success' }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: signal_arm64.flatpak
           name: signal_arm64.flatpak
       - name: Upload checksums.txt
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: checksums.txt
           name: checksums.txt
