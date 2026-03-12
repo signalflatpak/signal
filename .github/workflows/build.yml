@@ -35,9 +35,9 @@ jobs:
     name: 'build arm64'
     if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.aarch64 == 'true' ) }}
     env:
-      SIGNAL_VERSION: "8.1.0"
+      SIGNAL_VERSION: "8.2.0"
       NODE_VERSION: "v24.13.0"
-      SIGNAL_BRANCH: "8.1.x"
+      SIGNAL_BRANCH: "8.2.x"
       ARCH: "arm64"
     steps:
       - name: cleanup
@@ -66,9 +66,9 @@ jobs:
     name: 'build x86_64'
     if: ${{ github.event_name != 'workflow_dispatch' || ( github.event_name == 'workflow_dispatch' && github.event.inputs.x86_64 == 'true' ) }}
     env:
-      SIGNAL_VERSION: "8.1.0"
+      SIGNAL_VERSION: "8.2.0"
       NODE_VERSION: "v24.13.0"
-      SIGNAL_BRANCH: "8.1.x"
+      SIGNAL_BRANCH: "8.2.x"
       ARCH: "amd64"
     steps:
       - name: cleanup
