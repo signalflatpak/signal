@@ -7,7 +7,7 @@ import time
 import subprocess
 import datetime
 
-SIGNAL_VERSION = 'v8.4.1'
+SIGNAL_VERSION = 'v8.5.0'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-b",
