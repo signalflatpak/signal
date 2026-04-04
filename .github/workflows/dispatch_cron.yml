@@ -1,0 +1,25 @@
+name: version check
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '8 2 * * *'
+jobs:
+  run-dispatch:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    name: get latest version
+    steps:
+      - name: get versions
+        shell: bash
+        run: |
+          S_VER="$(curl -s https://api.github.com/repos/signalapp/signal-desktop/releases/latest|jq -r '.tag_name')"
+          S_VER="${S_VER#v}"
+          S_BRANCH="${S_VER%.*}.x"
+          N_VER=$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$S_BRANCH/package.json|jq -r '.engines.node')
+          echo "SIGNAL_VERSION=$S_VER" >> $GITHUB_ENV
+          echo "SIGNAL_BRANCH=$S_BRANCH" >> $GITHUB_ENV
+          echo "NODE_VERSION=$N_VER" >> $GITHUB_ENV
+      - name: dispatch other workflow
+        shell: bash
+        run: |
+          curl -L -s -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "X-GitHub-Api-Version: 2026-03-10" https://api.github.com/repos/${{ github.repository }}/dispatches -d '{"event_type":"build_signal","client_payload":{"node_version": "${{ env.NODE_VERSION }}","signal_version": "${{ env.SIGNAL_VERSION }}", "signal_branch": "${{ env.SIGNAL_BRANCH }}"}}'

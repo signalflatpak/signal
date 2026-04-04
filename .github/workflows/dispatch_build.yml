@@ -1,0 +1,206 @@
+name: build and deploy signal
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types:
+      - build_signal
+
+# This workflow has a lot of conditionals, and it needs to be this way. The
+# reason this was done all in one step and not in a matrix is so both builds
+# can happen in the same repo directory, and can get synced to the gh-pages
+# branch properly together. Another solution would be uploading/downloading
+# huge build artifacts, but that's not ideal as it slows down builds.
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_created: ${{ steps.tag_create.outcome }}
+    steps:
+      # create tag if the tag doesn't exists, and create release from tag
+      - name: checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-tags: true
+      # continue-on-error is for graceful exits; I don't want a red x every time
+      # this runs and is up to date.
+      - name: Create Release
+        id: tag_create
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
+        run: |
+          if ${{ github.event == 'workflow_dispatch' }}
+          git tag ${{ github.event.client_payload.signal_version }} && git push --tags
+          gh repo set-default ${{ github.repository }}
+          gh release create ${{ github.event.client_payload.signal_version }} --notes-from-tag --title ${{ github.event.client_payload.signal_version }}
+
+  build-arm64:
+    runs-on: ubuntu-24.04-arm
+    if: ${{ needs.create-release.outputs.tag_created == 'success' }}
+    name: 'build arm64'
+    env:
+      SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
+      NODE_VERSION: "v${{ github.event.client_payload.node_version }}"
+      SIGNAL_BRANCH: "${{ github.event.client_payload.node_branch }}"
+      ARCH: "arm64"
+    steps:
+      - name: cleanup
+        uses: flatpaks/runner-cleanup@2
+      - name: install dependnecies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
+      - name: checkout code
+        uses: actions/checkout@v6
+      - name: build arm64 deb
+        shell: bash
+        run: |
+          set -x
+          bash ci-build.sh -a $ARCH -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
+          mv ~/signal-$ARCH.deb .
+      - name: Upload arm64
+        uses: actions/upload-artifact@v7
+        with:
+          path: signal-${{ env.ARCH }}.deb
+          name: signal-${{ env.ARCH }}.deb
+
+  build-amd64:
+    runs-on: ubuntu-24.04
+    name: 'build x86_64'
+    if: ${{ needs.create-release.outputs.tag_created == 'success' }}
+    env:
+      SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
+      NODE_VERSION: "v${{ github.event.client_payload.node_version }}"
+      SIGNAL_BRANCH: "${{ github.event.client_payload.node_branch }}"
+      ARCH: "amd64"
+    steps:
+      - name: cleanup
+        uses: flatpaks/runner-cleanup@2
+      - name: install dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
+      - name: checkout code
+        uses: actions/checkout@v6
+      - name: build x86_64
+        shell: bash
+        run: |
+          set -x
+          bash ci-build.sh -a $ARCH -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
+          mv ~/signal-$ARCH.deb .
+      - name: Upload x86_64
+        uses: actions/upload-artifact@v7
+        with:
+          path: signal-${{ env.ARCH }}.deb
+          name: signal-${{ env.ARCH }}.deb
+
+  # The flatpak build depends on both electron builds, but in case one was
+  # skipped, still run after both are done.
+  build-flatpaks:
+    runs-on: ubuntu-24.04
+    name: 'build flatpaks'
+    needs:
+      - build-arm64
+      - build-amd64
+    if: always() && (needs.build-arm64.result == 'success') && (needs.build-amd64.result == 'success')
+    steps:
+      - name: cleanup
+        uses: flatpaks/runner-cleanup@2
+      - name: checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-tags: true
+      - name: setup flatpak, secrets, dependencies
+        shell: bash
+        env:
+          GPG_KEY: ${{secrets.GPG_KEY}}
+        run: |
+          df -h .
+          sudo apt-get update
+          sudo apt-get install -qq -y gpg openssh-client bash rsync flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static unzip
+          echo "$GPG_KEY" | gpg --import
+          sudo rm -rf /opt/pakrepo/
+          sudo mkdir -p /opt/pakrepo
+          sudo chown "$USER" /opt/pakrepo
+          sudo usermod -a -G_flatpak $USER
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+      - name: Download arm64 artifacts
+        if: ${{ needs.build-arm64.result == 'success' }}
+        uses: actions/download-artifact@v8
+        with:
+          path: .
+          name: signal-arm64.deb
+      - name: Download x86_64 artifacts
+        if: ${{ needs.build-amd64.result == 'success' }}
+        uses: actions/download-artifact@v8
+        with:
+          path: .
+          name: signal-amd64.deb
+      - name: build amd64 flatpak
+        if: ${{ needs.build-amd64.result == 'success' }}
+        shell: bash
+        run: |
+          df -h
+          flatpak-builder --user --install-deps-from=flathub --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+          flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
+          sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
+          sha256sum ./signal-amd64.deb | tee -a checksums.txt
+      - name: Upload amd64 flatpak
+        if: ${{ needs.build-amd64.result == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          path: signal_amd64.flatpak
+          name: signal_amd64.flatpak
+      - name: build arm64 flatpak
+        if: ${{ needs.build-arm64.result == 'success' }}
+        shell: bash
+        run: |
+          df -h
+          flatpak-builder --user --install-deps-from=flathub --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
+          flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
+          sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
+          sha256sum ./signal-arm64.deb | tee -a checksums.txt
+      - name: Upload arm64 flatpak
+        if: ${{ needs.build-arm64.result == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          path: signal_arm64.flatpak
+          name: signal_arm64.flatpak
+      - name: Upload checksums.txt
+        uses: actions/upload-artifact@v7
+        with:
+          path: checksums.txt
+          name: checksums.txt
+
+      ### Publish steps ###
+      # upload assets to release if the last step was successful
+      - name: Upload release assets
+        if ${{ steps.tag_create.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh repo set-default ${{ github.repository }}
+          for file in signal_amd64.flatpak signal_arm64.flatpak signal-amd64.deb signal-arm64.deb checksums.txt; do
+            gh release upload --clobber ${{ github.ref_name }} ./$file
+          done
+
+      # checkout pages branch with commit if tag was successful
+      - name: checkout gh-pages branch
+        if ${{ steps.tag_create.outcome == 'success' }}
+        uses: actions/checkout@v6
+        with:
+          ref: 671da365bc1e7786a1a3c46f25825d3d17ee69f6
+      # commit and push to gh pages branch if tag was successful
+      - name: sync to gh-pages branch repo dir and commit
+        if ${{ steps.tag_create.outcome == 'success' }}
+        shell: bash
+        run: |
+          rsync -a --delete /opt/pakrepo/ ./repo/
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+          git add repo
+          git commit -m "repo update for ${{ github.ref }}"
+          git push -f origin HEAD:gh-pages
