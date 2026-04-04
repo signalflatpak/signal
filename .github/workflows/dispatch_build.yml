@@ -32,13 +32,15 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then exit 0;fi
-          git tag ${{ github.event.client_payload.signal_version }} && git push --tags
+          git tag v${{ github.event.client_payload.signal_version }} && git push --tags
           gh repo set-default ${{ github.repository }}
           gh release create ${{ github.event.client_payload.signal_version }} --notes-from-tag --title ${{ github.event.client_payload.signal_version }}
 
   build-arm64:
     runs-on: ubuntu-24.04-arm
-    if: ${{ github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success' }}
+    needs:
+      - create-release
+    if: always() && (github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success')
     name: 'build arm64'
     env:
       SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
@@ -70,7 +72,9 @@ jobs:
   build-amd64:
     runs-on: ubuntu-24.04
     name: 'build x86_64'
-    if: ${{ github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success' }}
+    needs:
+      - create-release
+    if: always() && (github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success')
     env:
       SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
       NODE_VERSION: "v${{ github.event.client_payload.node_version }}"
