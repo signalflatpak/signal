@@ -110,6 +110,7 @@ jobs:
     needs:
       - build-arm64
       - build-amd64
+      - create-release
     if: always() && (needs.build-arm64.result == 'success') && (needs.build-amd64.result == 'success')
     steps:
       - name: cleanup
@@ -195,7 +196,6 @@ jobs:
           for file in signal_amd64.flatpak signal_arm64.flatpak signal-amd64.deb signal-arm64.deb checksums.txt; do
             gh release upload --clobber ${{ github.ref_name }} ./$file
           done
-
       # checkout pages branch with commit if tag was successful
       - name: checkout gh-pages branch
         if: ${{ needs.create-release.outputs.tag_created == 'success' }}
