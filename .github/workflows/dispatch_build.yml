@@ -144,11 +144,16 @@ jobs:
         with:
           path: .
           name: signal-amd64.deb
+      - name: replace date and version in metainfo
+        shell: bash
+        run: |
+          DATE="$(date +%Y-%m-%d)"
+          VERSION="${{ github.event.client_payload.signal_version }}"
+          sed -i org.signal.Signal.metainfo.xml -e "s,release version=\".*\" date=\".*\",release version=\"$VERSION\" date=\"$DATE\","
       - name: build amd64 flatpak
         if: ${{ needs.build-amd64.result == 'success' }}
         shell: bash
         run: |
-          df -h
           flatpak-builder --user --install-deps-from=flathub --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
           flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
           sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
@@ -163,7 +168,6 @@ jobs:
         if: ${{ needs.build-arm64.result == 'success' }}
         shell: bash
         run: |
-          df -h
           flatpak-builder --user --install-deps-from=flathub --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
           flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
           sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
