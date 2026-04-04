@@ -45,7 +45,7 @@ jobs:
     env:
       SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
       NODE_VERSION: "${{ github.event.client_payload.node_version }}"
-      SIGNAL_BRANCH: "${{ github.event.client_payload.node_branch }}"
+      SIGNAL_BRANCH: "${{ github.event.client_payload.signal_branch }}"
       ARCH: "arm64"
     steps:
       - name: cleanup
@@ -78,7 +78,7 @@ jobs:
     env:
       SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
       NODE_VERSION: "${{ github.event.client_payload.node_version }}"
-      SIGNAL_BRANCH: "${{ github.event.client_payload.node_branch }}"
+      SIGNAL_BRANCH: "${{ github.event.client_payload.signal_branch }}"
       ARCH: "amd64"
     steps:
       - name: cleanup
