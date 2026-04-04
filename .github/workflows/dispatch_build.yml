@@ -29,15 +29,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         continue-on-error: true
+        shell: bash
         run: |
-          if ${{ github.event == 'workflow_dispatch' }}
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then exit 0;fi
           git tag ${{ github.event.client_payload.signal_version }} && git push --tags
           gh repo set-default ${{ github.repository }}
           gh release create ${{ github.event.client_payload.signal_version }} --notes-from-tag --title ${{ github.event.client_payload.signal_version }}
 
   build-arm64:
     runs-on: ubuntu-24.04-arm
-    if: ${{ needs.create-release.outputs.tag_created == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success' }}
     name: 'build arm64'
     env:
       SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
@@ -178,7 +179,7 @@ jobs:
       ### Publish steps ###
       # upload assets to release if the last step was successful
       - name: Upload release assets
-        if ${{ steps.tag_create.outcome == 'success' }}
+        if: ${{ needs.create-release.outputs.tag_created == 'success' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -189,13 +190,13 @@ jobs:
 
       # checkout pages branch with commit if tag was successful
       - name: checkout gh-pages branch
-        if ${{ steps.tag_create.outcome == 'success' }}
+        if: ${{ needs.create-release.outputs.tag_created == 'success' }}
         uses: actions/checkout@v6
         with:
           ref: 671da365bc1e7786a1a3c46f25825d3d17ee69f6
       # commit and push to gh pages branch if tag was successful
       - name: sync to gh-pages branch repo dir and commit
-        if ${{ steps.tag_create.outcome == 'success' }}
+        if: ${{ needs.create-release.outputs.tag_created == 'success' }}
         shell: bash
         run: |
           rsync -a --delete /opt/pakrepo/ ./repo/
