@@ -31,7 +31,7 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then exit 0;fi
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then exit 1;fi
           git tag ${{ github.event.client_payload.signal_version }} && git push --tags
           gh repo set-default ${{ github.repository }}
           gh release create ${{ github.event.client_payload.signal_version }} --notes-from-tag --title ${{ github.event.client_payload.signal_version }}
