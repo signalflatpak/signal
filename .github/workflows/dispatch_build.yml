@@ -70,7 +70,7 @@ jobs:
   build-amd64:
     runs-on: ubuntu-24.04
     name: 'build x86_64'
-    if: ${{ needs.create-release.outputs.tag_created == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success' }}
     env:
       SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
       NODE_VERSION: "v${{ github.event.client_payload.node_version }}"
