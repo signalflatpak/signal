@@ -32,7 +32,7 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then exit 0;fi
-          git tag v${{ github.event.client_payload.signal_version }} && git push --tags
+          git tag ${{ github.event.client_payload.signal_version }} && git push --tags
           gh repo set-default ${{ github.repository }}
           gh release create ${{ github.event.client_payload.signal_version }} --notes-from-tag --title ${{ github.event.client_payload.signal_version }}
 
@@ -44,7 +44,7 @@ jobs:
     name: 'build arm64'
     env:
       SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
-      NODE_VERSION: "v${{ github.event.client_payload.node_version }}"
+      NODE_VERSION: "${{ github.event.client_payload.node_version }}"
       SIGNAL_BRANCH: "${{ github.event.client_payload.node_branch }}"
       ARCH: "arm64"
     steps:
@@ -77,7 +77,7 @@ jobs:
     if: always() && (github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success')
     env:
       SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
-      NODE_VERSION: "v${{ github.event.client_payload.node_version }}"
+      NODE_VERSION: "${{ github.event.client_payload.node_version }}"
       SIGNAL_BRANCH: "${{ github.event.client_payload.node_branch }}"
       ARCH: "amd64"
     steps:
