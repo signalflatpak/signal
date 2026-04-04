@@ -1,4 +1,4 @@
-name: build and deploy signal
+name: build from dispatch
 on:
   workflow_dispatch:
   repository_dispatch:
