@@ -211,5 +211,5 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
           git add repo
-          git commit -m "repo update for ${{ github.ref }}"
+          git commit -m "repo update for ${{ github.event.client_payload.signal_version }}"
           git push -f origin HEAD:gh-pages
