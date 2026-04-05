@@ -34,9 +34,12 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then
-            echo SIGNAL_VERSION="${{ github.event.inputs.signal_version }}" >> $GITHUB_OUTPUT
-            echo SIGNAL_BRANCH="${SIGNAL_VERSION%.*}.x" >> $GITHUB_OUTPUT
-            echo NODE_VERSION="$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$SIGNAL_BRANCH/package.json|jq -r '.engines.node')" >> $GITHUB_OUTPUT
+            SIGNAL_VERSION="${{ github.event.inputs.signal_version }}"
+            SIGNAL_BRANCH="${SIGNAL_VERSION%.*}.x"
+            NODE_VERSION="$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$SIGNAL_BRANCH/package.json|jq -r '.engines.node')"
+            echo SIGNAL_VERSION="$SIGNAL_VERSION" >> $GITHUB_OUTPUT
+            echo SIGNAL_BRANCH="$SIGNAL_BRANCH" >> $GITHUB_OUTPUT
+            echo NODE_VERSION="$NODE_VERSION" >> $GITHUB_OUTPUT
           else
             echo 'SIGNAL_VERSION="${{ github.event.client_payload.signal_version }}"' >> $GITHUB_OUTPUT
             echo 'NODE_VERSION="${{ github.event.client_payload.node_version }}"' >> $GITHUB_OUTPUT
