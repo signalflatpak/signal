@@ -1,6 +1,10 @@
 name: build from dispatch
 on:
   workflow_dispatch:
+    inputs:
+      signal_version:
+        type: input
+        default: 8.5.0
   repository_dispatch:
     types:
       - build_signal
@@ -22,6 +26,18 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-tags: true
+      - name: set env based on dispatch type
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then
+            echo SIGNAL_VERSION="${{ github.event.inputs.signal_version }}" >> $GITHUB_ENV
+            echo SIGNAL_BRANCH="${SIGNAL_VERSION%.*}.x" >> $GITHUB_ENV
+            echo NODE_VERSION="$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$SIGNAL_BRANCH/package.json|jq -r '.engines.node')" >> $GITHUB_ENV
+          else
+            echo 'SIGNAL_VERSION="${{ github.event.client_payload.signal_version }}"' >> $GITHUB_ENV
+            echo 'NODE_VERSION="${{ github.event.client_payload.node_version }}"' >> $GITHUB_ENV
+            echo 'SIGNAL_BRANCH="${{ github.event.client_payload.signal_branch }}"' >> $GITHUB_ENV
+          fi
       # continue-on-error is for graceful exits; I don't want a red x every time
       # this runs and is up to date.
       - name: Create Release
@@ -43,9 +59,9 @@ jobs:
     if: always() && (github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success')
     name: 'build arm64'
     env:
-      SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
-      NODE_VERSION: "${{ github.event.client_payload.node_version }}"
-      SIGNAL_BRANCH: "${{ github.event.client_payload.signal_branch }}"
+      SIGNAL_VERSION: "${{ env.SIGNAL_VERSION }}"
+      NODE_VERSION: "${{ env.NODE_VERSION }}"
+      SIGNAL_BRANCH: "${{ env.SIGNAL_BRANCH }}"
       ARCH: "arm64"
     steps:
       - name: cleanup
@@ -76,9 +92,9 @@ jobs:
       - create-release
     if: always() && (github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success')
     env:
-      SIGNAL_VERSION: "${{ github.event.client_payload.signal_version }}"
-      NODE_VERSION: "${{ github.event.client_payload.node_version }}"
-      SIGNAL_BRANCH: "${{ github.event.client_payload.signal_branch }}"
+      SIGNAL_VERSION: "${{ env.SIGNAL_VERSION }}"
+      NODE_VERSION: "${{ env.NODE_VERSION }}"
+      SIGNAL_BRANCH: "${{ env.SIGNAL_BRANCH }}"
       ARCH: "amd64"
     steps:
       - name: cleanup
