@@ -37,6 +37,7 @@ jobs:
             SIGNAL_VERSION="${{ github.event.inputs.signal_version }}"
             SIGNAL_BRANCH="${SIGNAL_VERSION%.*}.x"
             NODE_VERSION="$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$SIGNAL_BRANCH/package.json|jq -r '.engines.node')"
+            echo "$SIGNAL_VERSION b $SIGNAL_BRANCH n $NODE_VERSION"
             echo SIGNAL_VERSION="$SIGNAL_VERSION" >> $GITHUB_OUTPUT
             echo SIGNAL_BRANCH="$SIGNAL_BRANCH" >> $GITHUB_OUTPUT
             echo NODE_VERSION="$NODE_VERSION" >> $GITHUB_OUTPUT
@@ -66,9 +67,9 @@ jobs:
     if: always() && (github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success')
     name: 'build arm64'
     env:
-      SIGNAL_VERSION: "${{ needs.create-release.output.signal_version }}"
-      NODE_VERSION: "${{ needs.create-release.output.node_version }}"
-      SIGNAL_BRANCH: "${{ needs.create-release.output.signal_branch }}"
+      SIGNAL_VERSION: "${{ needs.create-release.outputs.signal_version }}"
+      NODE_VERSION: "${{ needs.create-release.outputs.node_version }}"
+      SIGNAL_BRANCH: "${{ needs.create-release.outputs.signal_branch }}"
       ARCH: "arm64"
     steps:
       - name: cleanup
@@ -99,9 +100,9 @@ jobs:
       - create-release
     if: always() && (github.event_name == 'workflow_dispatch' || needs.create-release.outputs.tag_created == 'success')
     env:
-      SIGNAL_VERSION: "${{ needs.create-release.output.signal_version }}"
-      NODE_VERSION: "${{ needs.create-release.output.node_version }}"
-      SIGNAL_BRANCH: "${{ needs.create-release.output.signal_branch }}"
+      SIGNAL_VERSION: "${{ needs.create-release.outputs.signal_version }}"
+      NODE_VERSION: "${{ needs.create-release.outputs.node_version }}"
+      SIGNAL_BRANCH: "${{ needs.create-release.outputs.signal_branch }}"
       ARCH: "amd64"
     steps:
       - name: cleanup
