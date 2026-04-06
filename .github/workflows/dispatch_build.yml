@@ -37,9 +37,11 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then
             SIGNAL_VERSION="${{ github.event.inputs.signal_version }}"
+            SIGNAL_VERSION="${SIGNAL_VERSION#v}"
             echo SIGNAL_VERSION="$SIGNAL_VERSION" >> $GITHUB_OUTPUT
           else
             SIGNAL_VERSION="$(curl -s https://api.github.com/repos/signalapp/signal-desktop/releases/latest|jq -r '.tag_name')"
+            SIGNAL_VERSION="${SIGNAL_VERSION#v}"
             echo SIGNAL_VERSION="$SIGNAL_VERSION" >> $GITHUB_OUTPUT
           fi
           SIGNAL_BRANCH="${SIGNAL_VERSION%.*}.x"
