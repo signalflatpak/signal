@@ -43,7 +43,7 @@ jobs:
             echo SIGNAL_VERSION="$SIGNAL_VERSION" >> $GITHUB_OUTPUT
           fi
           SIGNAL_BRANCH="${SIGNAL_VERSION%.*}.x"
-          NODE_VERSION="$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$SIGNAL_BRANCH/package.json|jq -r '.engines.node')"
+          NODE_VERSION="v$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$SIGNAL_BRANCH/package.json|jq -r '.engines.node')"
           echo SIGNAL_BRANCH="$SIGNAL_BRANCH" >> $GITHUB_OUTPUT
           echo NODE_VERSION="$NODE_VERSION" >> $GITHUB_OUTPUT
           echo "$SIGNAL_VERSION b $SIGNAL_BRANCH n $NODE_VERSION"
