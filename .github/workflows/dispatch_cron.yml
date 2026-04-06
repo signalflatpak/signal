@@ -1,8 +1,8 @@
 name: version check and dispatch
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '8 2 * * *'
+  #schedule:
+  #  - cron: '8 2 * * *'
 jobs:
   run-dispatch:
     runs-on: ubuntu-latest
