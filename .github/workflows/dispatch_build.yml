@@ -5,6 +5,7 @@ on:
       signal_version:
         type: input
         default: 8.5.0
+        description: "Input 'latest' to build AND deploy latest version"
   schedule:
     - cron: '8 2 * * *'
   repository_dispatch:
@@ -35,7 +36,7 @@ jobs:
         id: set_env
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.signal_version }}" != "latest" ]];then
             SIGNAL_VERSION="${{ github.event.inputs.signal_version }}"
             SIGNAL_VERSION="${SIGNAL_VERSION#v}"
             echo SIGNAL_VERSION="$SIGNAL_VERSION" >> $GITHUB_OUTPUT
@@ -58,7 +59,13 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then exit 1;fi
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]];then
+            if [[ "${{ github.event.inputs.signal_version }}" != "latest" ]];then
+              continue
+            else
+              exit 1
+            fi
+          fi
           git tag ${{ steps.set_env.outputs.SIGNAL_VERSION }} && git push --tags
           gh repo set-default ${{ github.repository }}
           gh release create ${{ steps.set_env.outputs.SIGNAL_VERSION }} --notes-from-tag --title ${{  steps.set_env.outputs.SIGNAL_VERSION }}
