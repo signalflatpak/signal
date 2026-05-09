@@ -55,11 +55,19 @@ pub   rsa4096/FBEF43DC8C6BE9A7 2022-06-04 [SC]
 
 Build the Flatpak:
 
+This builds inside of a container image defined [here](https://github.com/flatpaks/signalimage)
+
 ```
 git clone https://github.com/signalflatpak/signal.git
 cd signal
-bash autobuild.sh
-bash ci-build.sh -a [amd64/arm64] -n NODE_VERSION -v SIGNAL_VERSION -b BRANCH
+# obtain node version, signal version, and branch:
+
+SIGNAL_VERSION="$(curl -s https://api.github.com/repos/signalapp/signal-desktop/releases/latest|jq -r '.tag_name')"
+SIGNAL_VERSION="${SIGNAL_VERSION#v}"
+SIGNAL_BRANCH="${SIGNAL_VERSION%.*}.x"
+NODE_VERSION="v$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$SIGNAL_BRANCH/package.json|jq -r '.engines.node')"
+
+bash ci-build.sh -a [amd64/arm64] -n $NODE_VERSION -v $SIGNAL_VERSION -b $SIGNAL_BRANCH
 mv ~/signal-[arm64/amd64].deb .
 flatpak-builder --arch=[x86_64/aarch64] --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
 ```
