@@ -228,7 +228,7 @@ jobs:
         if: ${{ needs.create-release.outputs.tag_created == 'success' }}
         uses: actions/checkout@v6
         with:
-          ref: 671da365bc1e7786a1a3c46f25825d3d17ee69f6
+          ref: 3bfa32a90c7bdd769a0e2235f66bd1aec0310ec3
       # commit and push to gh pages branch if tag was successful
       - name: sync to gh-pages branch repo dir and commit
         if: ${{ needs.create-release.outputs.tag_created == 'success' }}
