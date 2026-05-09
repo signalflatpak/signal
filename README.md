@@ -8,8 +8,8 @@ For directions on installing the flatpak, seek [here](https://flatpaks.github.io
 
 ## Installing via .flatpak bundle or .deb file
 
-- This repo provides .flatpak binaries as release artifacts [here](https://github.com/flatpaks/signal/releases)
-- This repo provides .deb binaries as release artifacts [here](https://github.com/flatpaks/signal/releases)
+- This repo provides .flatpak binaries as release artifacts [here](https://github.com/signalflatpak/signal/releases)
+- This repo provides .deb binaries as release artifacts [here](https://github.com/signalflatpak/signal/releases)
 - The upstream repo provides .deb binaries [here](https://gitlab.com/undef1/signal-desktop-builder/-/packages) for some releases.
 
 # Building this yourself
@@ -56,7 +56,7 @@ pub   rsa4096/FBEF43DC8C6BE9A7 2022-06-04 [SC]
 Build the Flatpak:
 
 ```
-git clone https://github.com/flatpaks/signal.git
+git clone https://github.com/signalflatpak/signal.git
 cd signal
 bash autobuild.sh
 bash ci-build.sh -a [amd64/arm64] -n NODE_VERSION -v SIGNAL_VERSION -b BRANCH
