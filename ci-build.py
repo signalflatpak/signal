@@ -19,7 +19,7 @@ def get_args():
 
 
 def runcmd(cmd):
-    output = subprocess.call(cmd, shell=True)
+    output = subprocess.run(cmd, shell=True)
     if output.returncode != 0:
         print("error running", cmd, "\n", output.stdout, output.stderr)
 
