@@ -16,9 +16,24 @@ For directions on installing the flatpak, seek [here](https://flatpaks.github.io
 
 Brief overview:
 
-- autobuild.sh finds the latest version of signalapp/signal-desktop from github's api. It modifies the .github/workflows/build.yml file and pushes a tag to this repo.
-- .github/workflows/build.yml invokes the ci-build.sh script and flatpak-builder to produce a deb and bundle it into a flatpak binary.
-- the flatpak repo dir is pushed to github pages.
+- The github action (in .github/workflows/) checks for a new version periodically
+- If a new version is found, the script runs and creates a release, builds .deb and .flatpak artifacts, and attaches them to the release
+- Internally, the ci-build.py script and flatpak-builder are to produce a deb and bundle it into a flatpak binary
+- the flatpak repo dir is pushed to github pages
+
+tl;dr:
+
+```
+SIGNAL_VERSION="$(curl -s https://api.github.com/repos/signalapp/signal-desktop/releases/latest|jq -r '.tag_name')"
+SIGNAL_VERSION="${SIGNAL_VERSION#v}"
+SIGNAL_BRANCH="${SIGNAL_VERSION%.*}.x"
+NODE_VERSION="v$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$SIGNAL_BRANCH/package.json|jq -r '.engines.node')"
+python3 ./ci-build.py -a amd64 -n $NODE_VERSION -b $SIGNAL_BRANCH -v $SIGNAL_VERSION
+# assumes 'user' flatpak install
+flatpak-builder --user --install-deps-from=flathub --repo=.pakrepo --force-clean .builddir flatpak.yml
+flatpak build-bundle .pakrepo ./signal.flatpak org.signal.Signal master
+flatpak install --user ./signal.flatpak
+```
 
 
 ## Building a Flatpak
@@ -67,7 +82,7 @@ SIGNAL_VERSION="${SIGNAL_VERSION#v}"
 SIGNAL_BRANCH="${SIGNAL_VERSION%.*}.x"
 NODE_VERSION="v$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$SIGNAL_BRANCH/package.json|jq -r '.engines.node')"
 
-bash ci-build.sh -a [amd64/arm64] -n $NODE_VERSION -v $SIGNAL_VERSION -b $SIGNAL_BRANCH
+python3 ci-build.py -a [amd64/arm64] -n $NODE_VERSION -v $SIGNAL_VERSION -b $SIGNAL_BRANCH
 mv ~/signal-[arm64/amd64].deb .
 flatpak-builder --arch=[x86_64/aarch64] --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
 ```

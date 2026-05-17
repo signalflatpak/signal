@@ -93,7 +93,7 @@ jobs:
         shell: bash
         run: |
           set -x
-          bash ci-build.sh -a $ARCH -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
+          python3 ci-build.py -a $ARCH -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
           mv ~/signal-$ARCH.deb .
       - name: Upload arm64
         uses: actions/upload-artifact@v7
@@ -126,7 +126,7 @@ jobs:
         shell: bash
         run: |
           set -x
-          bash ci-build.sh -a $ARCH -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
+          python3 ci-build.py -a $ARCH -v $SIGNAL_VERSION -n $NODE_VERSION -b $SIGNAL_BRANCH
           mv ~/signal-$ARCH.deb .
       - name: Upload x86_64
         uses: actions/upload-artifact@v7
