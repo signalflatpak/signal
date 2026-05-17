@@ -119,7 +119,7 @@ def __main__():
 
     # copy deb, stop and remove container
     runcmd(
-        f"podman cp signal-desktop-{args.version}:/Signal-Desktop/release/signal-desktop_{args.version}_{archshort}.deb ~/signal-{archshort}.deb"
+        f"podman cp signal-desktop-{args.version}:/Signal-Desktop/release/signal-desktop_{args.version}_{archcommon}.deb ~/signal-{archcommon}.deb"
     )
     runcmd(f"podman stop signal-desktop-{args.version}")
     runcmd(f"podman rm signal-desktop-{args.version}")
