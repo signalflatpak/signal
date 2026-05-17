@@ -89,10 +89,10 @@ def __main__():
             "dir": "/Signal-Desktop",
             "cmd": "pnpm install"
         },
-        {
-            "dir": "/Signal-Desktop",
-            "cmd": "rm -rf ts/test-mock"
-        },
+        # {
+        #     "dir": "/Signal-Desktop",
+        #     "cmd": "rm -rf ts/test-mock"
+        # },
         {
             "dir": "/Signal-Desktop",
             "cmd": "pnpm run generate"
