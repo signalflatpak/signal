@@ -29,6 +29,10 @@ SIGNAL_VERSION="${SIGNAL_VERSION#v}"
 SIGNAL_BRANCH="${SIGNAL_VERSION%.*}.x"
 NODE_VERSION="v$(curl -s https://raw.githubusercontent.com/signalapp/signal-desktop/$SIGNAL_BRANCH/package.json|jq -r '.engines.node')"
 python3 ./ci-build.py -a amd64 -n $NODE_VERSION -b $SIGNAL_BRANCH -v $SIGNAL_VERSION
+# assumes 'user' flatpak install
+flatpak-builder --user --install-deps-from=flathub --repo=.pakrepo --force-clean .builddir flatpak.yml
+flatpak build-bundle .pakrepo ./signal.flatpak org.signal.Signal master
+flatpak install --user ./signal.flatpak
 ```
 
 
