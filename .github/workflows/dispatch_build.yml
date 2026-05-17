@@ -188,7 +188,7 @@ jobs:
         shell: bash
         run: |
           flatpak-builder --user --install-deps-from=flathub --arch=x86_64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-          flatpak build-export --update-appstream /opt/pakrepo .builddir
+          flatpak build-update-repo /opt/pakrepo
           flatpak build-bundle --arch=x86_64 /opt/pakrepo ./signal_amd64.flatpak org.signal.Signal master
           sha256sum ./signal_amd64.flatpak | tee -a checksums.txt
           sha256sum ./signal-amd64.deb | tee -a checksums.txt
@@ -203,7 +203,7 @@ jobs:
         shell: bash
         run: |
           flatpak-builder --user --install-deps-from=flathub --arch=aarch64 --gpg-sign=FBEF43DC8C6BE9A7 --repo=/opt/pakrepo --force-clean .builddir flatpak.yml
-          flatpak build-export --update-appstream /opt/pakrepo .builddir
+          flatpak build-update-repo /opt/pakrepo
           flatpak build-bundle --arch=aarch64 /opt/pakrepo ./signal_arm64.flatpak org.signal.Signal master
           sha256sum ./signal_arm64.flatpak | tee -a checksums.txt
           sha256sum ./signal-arm64.deb | tee -a checksums.txt
