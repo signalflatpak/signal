@@ -34,44 +34,92 @@ def __main__():
     archcommon = "amd64" if args.arch == "amd64" else "arm64" if args.arch == "arm64" else None
     archshort = "x64" if args.arch == "amd64" else "arm64" if args.arch == "arm64" else None
 
-    if ARCHCOMMON is None or ARCHSHORT is None:
+    if archcommon is None or archshort is None:
         print(f"Arch is wrong: {args.arch} should be amd64 or arm64")
         sys.exit(1)
 
     runcmd(
-        f"podman create --name=signal-desktop-{version} --arch {arch_common} -it ghcr.io/flatpaks/signalimage:latest bash"
+        f"podman create --name=signal-desktop-{args.version} --arch {archcommon} -it ghcr.io/flatpaks/signalimage:latest bash"
     )
-    runcmd(f"podman start signal-desktop-{version}")
+    runcmd(f"podman start signal-desktop-{args.version}")
 
-    podman_cmds=[
-            # clone
-            { "dir": "/", "cmd": "git config --global user.name name"}
-            { "dir": "/", "cmd": "git config --global user.email name@example.com"}
-            { "dir": "/", "cmd": f"git clone -q https://github.com/signalapp/Signal-Desktop -b {args.branch}"}
-            # download and set up node
-            { "dir": "/opt", "cmd": f"wget -q https://nodejs.org/dist/{args.node}/node-{args.node}-linux-{archshort}.tar.gz"}
-            { "dir": "/opt", "cmd": f"tar xf node-{args.node}-linux-{archshort}.tar.gz"}
-            { "dir": "/opt", "cmd": f"mv node-{args.node}-linux-{archshort} node"}
+    podman_cmds = [
+        # clone
+        {
+            "dir": "/",
+            "cmd": "git config --global user.name name"
+        },
+        {
+            "dir": "/",
+            "cmd": "git config --global user.email name@example.com"
+        },
+        {
+            "dir":
+            "/",
+            "cmd":
+            f"git clone -q https://github.com/signalapp/Signal-Desktop -b {args.branch}"
+        },
+        # download and set up node
+        {
+            "dir":
+            "/opt",
+            "cmd":
+            f"wget -q https://nodejs.org/dist/{args.node}/node-{args.node}-linux-{archshort}.tar.gz"
+        },
+        {
+            "dir": "/opt",
+            "cmd": f"tar xf node-{args.node}-linux-{archshort}.tar.gz"
+        },
+        {
+            "dir": "/opt",
+            "cmd": f"mv node-{args.node}-linux-{archshort} node"
+        },
 
-            # build signal
-            { "dir": "/Signal-Desktop", "cmd": "git-lfs install"}
-            { "dir": "/Signal-Desktop", "cmd": "npm install -g pnpm cross-env npm-run-all"}
-            { "dir": "/Signal-Desktop", "cmd": "pnpm install"}
-            { "dir": "/Signal-Desktop", "cmd": "rm -rf ts/test-mock"}
-            { "dir": "/Signal-Desktop", "cmd": "pnpm run generate"}
+        # build signal
+        {
+            "dir": "/Signal-Desktop",
+            "cmd": "git-lfs install"
+        },
+        {
+            "dir": "/Signal-Desktop",
+            "cmd": "npm install -g pnpm cross-env npm-run-all"
+        },
+        {
+            "dir": "/Signal-Desktop",
+            "cmd": "pnpm install"
+        },
+        {
+            "dir": "/Signal-Desktop",
+            "cmd": "rm -rf ts/test-mock"
+        },
+        {
+            "dir": "/Signal-Desktop",
+            "cmd": "pnpm run generate"
+        },
 
-            # build sticker-creator
-            { "dir": "/Signal-Desktop/sticker-creator", "cmd": "pnpm install"}
-            { "dir": "/Signal-Desktop/sticker-creator", "cmd": "pnpm run build"}
+        # build sticker-creator
+        {
+            "dir": "/Signal-Desktop/sticker-creator",
+            "cmd": "pnpm install"
+        },
+        {
+            "dir": "/Signal-Desktop/sticker-creator",
+            "cmd": "pnpm run build"
+        },
 
-            # build deb
-            { "dir": "/Signal-Desktop", "cmd": f"pnpm run build:release --{archshort} --linux"}
-            ]
+        # build deb
+        {
+            "dir": "/Signal-Desktop",
+            "cmd": f"pnpm run build:release --{archshort} --linux"
+        },
+    ]
     for p in podman_cmds:
         podman_exec(p["dir"], p["cmd"], args.version)
 
     # copy deb, stop and remove container
-    runcmd(f"podman cp signal-desktop-{args.version}:/Signal-Desktop/release/signal-desktop_{args.version}_{archshort}.deb ~/signal-{archshort}.deb")
+    runcmd(
+        f"podman cp signal-desktop-{args.version}:/Signal-Desktop/release/signal-desktop_{args.version}_{archshort}.deb ~/signal-{archshort}.deb"
+    )
     runcmd(f"podman stop signal-desktop-{args.version}")
     runcmd(f"podman rm signal-desktop-{args.version}")
 
