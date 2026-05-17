@@ -26,6 +26,7 @@ def runcmd(cmd):
 
 def podman_exec(dir, cmd, version):
     cmd = f"podman exec -it -w {dir} signal-desktop-{version} {cmd}"
+    print(f"$ {cmd}")
     runcmd(cmd)
 
 
