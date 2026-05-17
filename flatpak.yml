@@ -8,6 +8,7 @@ command: signal-desktop
 separate-locales: false
 rename-icon: signal-desktop
 rename-desktop-file: signal-desktop.desktop
+appstream-compose: false
 finish-args:
   # X11 performance
   - --share=ipc
