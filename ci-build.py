@@ -40,7 +40,7 @@ def __main__():
         sys.exit(1)
 
     runcmd(
-        f"podman create --name=signal-desktop-{args.version} --arch {archcommon} -it ghcr.io/flatpaks/signalimage:latest bash"
+        f"podman create --name=signal-desktop-{args.version} --arch {archcommon} -it ghcr.io/signalflatpak/debbuilder:latest bash"
     )
     runcmd(f"podman start signal-desktop-{args.version}")
 
