@@ -1,2 +1,2 @@
 FROM fedora:latest
-RUN dnf install flatpak flatpak-builder gnupg
+RUN dnf install -y flatpak flatpak-builder gnupg
