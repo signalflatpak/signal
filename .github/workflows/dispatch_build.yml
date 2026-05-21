@@ -157,6 +157,7 @@ jobs:
           GPG_KEY: ${{secrets.GPG_KEY}}
         run: |
           df -h .
+          sudo add-apt-repository ppa:flatpak/stable -y
           sudo apt-get update
           sudo apt-get install -qq -y gpg openssh-client bash rsync flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static unzip
           echo "$GPG_KEY" | gpg --import
