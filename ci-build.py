@@ -111,7 +111,7 @@ def __main__():
         # build deb
         {
             "dir": "/Signal-Desktop",
-            "cmd": f"pnpm run build:release --{archshort} --linux"
+            "cmd": f"pnpm run build:release --{archshort} --linux deb"
         },
     ]
     for p in podman_cmds:
