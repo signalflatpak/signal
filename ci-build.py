@@ -24,8 +24,8 @@ def runcmd(cmd):
         print("error running", cmd, "\n", output.stdout, output.stderr)
 
 
-def podman_exec(dir, cmd, version):
-    cmd = f"podman exec -it -w {dir} signal-desktop-{version} {cmd}"
+def podman_exec(dir, cmd, version, arch):
+    cmd = f"podman exec -e npm_config_arch={arch} -it -w {dir} signal-desktop-{version} {cmd}"
     print(f"$ {cmd}")
     runcmd(cmd)
 
@@ -115,7 +115,7 @@ def __main__():
         },
     ]
     for p in podman_cmds:
-        podman_exec(p["dir"], p["cmd"], args.version)
+        podman_exec(p["dir"], p["cmd"], args.version, args.arch)
 
     # copy deb, stop and remove container
     runcmd(
