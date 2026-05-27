@@ -25,7 +25,7 @@ def runcmd(cmd):
 
 
 def podman_exec(dir, cmd, version, arch):
-    cmd = f"podman exec -it -w {dir} signal-desktop-{version} {cmd}" if arch=="amd64" else f"podman exec -it -e npm_config_arch=arm64 -w {dir} signal-desktop-{version} {cmd}"
+    cmd = f"podman exec -it -w {dir} signal-desktop-{version} {cmd}"
     print(f"$ {cmd}")
     runcmd(cmd)
 
