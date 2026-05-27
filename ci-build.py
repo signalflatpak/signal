@@ -3,6 +3,7 @@
 import argparse
 import sys
 import subprocess
+import shutil
 
 
 def get_args():
@@ -24,10 +25,23 @@ def runcmd(cmd):
         print("error running", cmd, "\n", output.stdout, output.stderr)
 
 
-def podman_exec(dir, cmd, version, arch):
+def container_exec(dir, cmd, version):
     cmd = f"podman exec -it -w {dir} signal-desktop-{version} {cmd}"
+    if not shutil.which("podman") and shutil.which("docker"):
+        cmd = f"docker exec -it -w {dir} signal-desktop-{version} {cmd}"
     print(f"$ {cmd}")
     runcmd(cmd)
+
+
+def create_container(version, archcommon):
+    create = f"--name=signal-desktop-{version} -it ghcr.io/signalflatpak/debbuilder:latest bash"
+    start = f"start signal-desktop-{version}"
+    if shutil.which("podman"):
+        runcmd(f"podman create --arch {archcommon} {create}")
+        runcmd(f"podman {start}")
+    elif shutil.which("docker"):
+        runcmd(f"docker create {create}")
+        runcmd(f"docker {start}")
 
 
 def __main__():
@@ -39,10 +53,7 @@ def __main__():
         print(f"Arch is wrong: {args.arch} should be amd64 or arm64")
         sys.exit(1)
 
-    runcmd(
-        f"podman create --name=signal-desktop-{args.version} --arch {archcommon} -it ghcr.io/signalflatpak/debbuilder:latest bash"
-    )
-    runcmd(f"podman start signal-desktop-{args.version}")
+    create_container(args.version, archcommon)
 
     podman_cmds = [
         # clone
@@ -89,10 +100,6 @@ def __main__():
             "dir": "/Signal-Desktop",
             "cmd": "pnpm install"
         },
-        # {
-        #     "dir": "/Signal-Desktop",
-        #     "cmd": "rm -rf ts/test-mock"
-        # },
         {
             "dir": "/Signal-Desktop",
             "cmd": "pnpm run generate"
@@ -115,7 +122,7 @@ def __main__():
         },
     ]
     for p in podman_cmds:
-        podman_exec(p["dir"], p["cmd"], args.version, args.arch)
+        podman_exec(p["dir"], p["cmd"], args.version)
 
     # copy deb, stop and remove container
     runcmd(
