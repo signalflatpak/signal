@@ -44,6 +44,20 @@ def create_container(version, archcommon):
         runcmd(f"docker {start}")
 
 
+def copy_stop_move(version, archcommon):
+    copy = f"cp signal-desktop-{version}:/Signal-Desktop/release/signal-desktop_{version}_{archcommon}.deb ~/signal-{archcommon}.deb"
+    stop = f"podman stop signal-desktop-{version}"
+    move = f"podman rm signal-desktop-{version}"
+    if shutil.which("podman"):
+        runcmd(f"podman {copy}")
+        runcmd(f"podman {stop}")
+        runcmd(f"podman {move}")
+    elif shutil.which("docker"):
+        runcmd(f"docker {copy}")
+        runcmd(f"docker {stop}")
+        runcmd(f"docker {move}")
+
+
 def __main__():
     args = get_args()
     archcommon = "amd64" if args.arch == "amd64" else "arm64" if args.arch == "arm64" else None
@@ -122,14 +136,10 @@ def __main__():
         },
     ]
     for p in podman_cmds:
-        podman_exec(p["dir"], p["cmd"], args.version)
+        container_exec(p["dir"], p["cmd"], args.version)
 
     # copy deb, stop and remove container
-    runcmd(
-        f"podman cp signal-desktop-{args.version}:/Signal-Desktop/release/signal-desktop_{args.version}_{archcommon}.deb ~/signal-{archcommon}.deb"
-    )
-    runcmd(f"podman stop signal-desktop-{args.version}")
-    runcmd(f"podman rm signal-desktop-{args.version}")
+    copy_stop_move(args.version, archcommon)
 
 
 if __name__ == "__main__":
