@@ -26,11 +26,11 @@ def runcmd(cmd):
 
 
 def container_exec(dir, cmd, version):
-    cmd = f"podman exec -it -w {dir} signal-desktop-{version} {cmd}"
+    ccmd = f"podman exec -it -w {dir} signal-desktop-{version} {cmd}"
     if not shutil.which("podman") and shutil.which("docker"):
-        cmd = f"docker exec -it -w {dir} signal-desktop-{version} {cmd}"
-    print(f"$ {cmd}")
-    runcmd(cmd)
+        ccmd = f"docker exec -it -w {dir} signal-desktop-{version} {cmd}"
+    print(f"$ {ccmd}")
+    runcmd(ccmd)
 
 
 def create_container(version, archcommon):
@@ -46,8 +46,8 @@ def create_container(version, archcommon):
 
 def copy_stop_move(version, archcommon):
     copy = f"cp signal-desktop-{version}:/Signal-Desktop/release/signal-desktop_{version}_{archcommon}.deb ~/signal-{archcommon}.deb"
-    stop = f"podman stop signal-desktop-{version}"
-    move = f"podman rm signal-desktop-{version}"
+    stop = f"stop signal-desktop-{version}"
+    move = f"rm signal-desktop-{version}"
     if shutil.which("podman"):
         runcmd(f"podman {copy}")
         runcmd(f"podman {stop}")
