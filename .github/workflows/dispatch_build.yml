@@ -29,7 +29,7 @@ jobs:
     steps:
       # create tag if the tag doesn't exists, and create release from tag
       - name: checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-tags: true
       - name: set env based on dispatch type
@@ -88,7 +88,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
       - name: checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: build arm64 deb
         shell: bash
         run: |
@@ -121,7 +121,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
       - name: checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: build x86_64
         shell: bash
         run: |
@@ -148,7 +148,7 @@ jobs:
       - name: cleanup
         uses: flatpaks/runner-cleanup@2
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-tags: true
       - name: setup flatpak, secrets, dependencies
@@ -232,7 +232,7 @@ jobs:
       # checkout pages branch with commit if tag was successful
       - name: checkout gh-pages branch
         if: ${{ needs.create-release.outputs.tag_created == 'success' }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: 3bfa32a90c7bdd769a0e2235f66bd1aec0310ec3
       # commit and push to gh pages branch if tag was successful
