@@ -86,7 +86,7 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
+          sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user podman
       - name: checkout code
         uses: actions/checkout@v7
       - name: build arm64 deb
@@ -119,7 +119,7 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user-static podman
+          sudo apt-get install -qq -y gpg openssh-client bash rsync elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs qemu-user podman
       - name: checkout code
         uses: actions/checkout@v7
       - name: build x86_64
@@ -158,7 +158,7 @@ jobs:
         run: |
           df -h .
           sudo apt-get update
-          sudo apt-get install -qq -y gpg openssh-client bash rsync flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user-static unzip
+          sudo apt-get install -qq -y gpg openssh-client bash rsync flatpak elfutils coreutils slirp4netns rootlesskit binfmt-support fuse-overlayfs flatpak-builder qemu-user unzip
           echo "$GPG_KEY" | gpg --import
           sudo rm -rf /opt/pakrepo/
           sudo mkdir -p /opt/pakrepo
