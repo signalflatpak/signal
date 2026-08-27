@@ -8,9 +8,10 @@ For directions on installing the flatpak, seek [here](https://flatpaks.github.io
 
 ## Installing via .flatpak bundle or .deb file
 
-- This repo provides .flatpak binaries as release artifacts [here](https://github.com/signalflatpak/signal/releases)
-- This repo provides .deb binaries as release artifacts [here](https://github.com/signalflatpak/signal/releases)
+- Flatpak Bundles and .deb packages are available in [release artifacats](https://github.com/signalflatpak/signal/releases)
 - The upstream repo provides .deb binaries [here](https://gitlab.com/undef1/signal-desktop-builder/-/packages) for some releases.
+- [flathub flatpak](https://github.com/flathub/org.signal.Signal) has x86_64 builds from Signal's official .deb
+- [flathub beta](https://github.com/flathub/org.signal.Signal/tree/beta) has aarch64 builds from Signal's official beta .deb. (Eventually everyone should use the official release once it's out of beta.)
 
 # Building this yourself
 
