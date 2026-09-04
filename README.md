@@ -1,5 +1,13 @@
 # Signal Desktop Flatpak and .deb builds, from source, for arm64 and x86_64
 
+---
+
+## There is official linux ARM support now!
+
+Use the [official](https://signal.org/download/linux/) and [flathub rebuild](https://github.com/flathub/org.signal.Signal) builds, and uninstall this one.
+
+---
+
 This repository is a descended from [undef1/signal-desktop-builder](https://gitlab.com/undef1/signal-desktop-builder), credit where it's due.
 
 ## Installing from the flatpak repository
